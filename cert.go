@@ -26,11 +26,11 @@ func init() {
 }
 
 func NewCerts(s []string) (Certs, error) {
-	if len(s) <= 1 {
+	if len(s) < 1 {
 		return nil, fmt.Errorf("ドメイン名をひとつ以上指定してください。")
 	}
 	certs := Certs{}
-	for _, d := range s[1:] {
+	for _, d := range s[:] {
 		c, err := NewCert(d)
 		if err != nil {
 			return nil, err
@@ -38,6 +38,14 @@ func NewCerts(s []string) (Certs, error) {
 		certs = append(certs, c)
 	}
 	return certs, nil
+}
+
+func (certs Certs) String() string {
+	s := ""
+	for _, c := range certs {
+		s += c.String()
+	}
+	return s
 }
 
 func (certs Certs) Markdown() string {
@@ -64,6 +72,17 @@ func NewCert(d string) (*Cert, error) {
 		Start:      cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		End:        cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
 	}, nil
+}
+
+func (c *Cert) String() string {
+	s := ""
+	s += fmt.Sprintf("DomainName: %s\n", c.DomainName)
+	s += fmt.Sprintf("Start: %s\n", c.Start)
+	s += fmt.Sprintf("End: %s\n", c.End)
+	s += fmt.Sprintf("CommonName: %s\n", c.CommonName)
+	s += fmt.Sprintf("SANs: %s\n", strings.Join(c.SANs, " "))
+	s += fmt.Sprintln()
+	return s
 }
 
 func (c *Cert) Markdown() string {

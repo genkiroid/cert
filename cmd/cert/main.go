@@ -1,17 +1,26 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/genkiroid/cert"
 )
 
+var f = flag.String("f", "plain text", "Output format. md as markdown.")
+
 func main() {
-	c, err := cert.NewCerts(os.Args)
+	flag.Parse()
+	c, err := cert.NewCerts(flag.Args())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
-	fmt.Print(c.Markdown())
+	switch *f {
+	case "md":
+		fmt.Printf("%s", c.Markdown())
+	default:
+		fmt.Printf("%s", c)
+	}
 }
