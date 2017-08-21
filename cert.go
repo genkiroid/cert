@@ -77,10 +77,10 @@ func NewCert(d string) (*Cert, error) {
 func (c *Cert) String() string {
 	s := ""
 	s += fmt.Sprintf("DomainName: %s\n", c.DomainName)
-	s += fmt.Sprintf("Start: %s\n", c.Start)
-	s += fmt.Sprintf("End: %s\n", c.End)
+	s += fmt.Sprintf("Start:      %s\n", c.Start)
+	s += fmt.Sprintf("End:        %s\n", c.End)
 	s += fmt.Sprintf("CommonName: %s\n", c.CommonName)
-	s += fmt.Sprintf("SANs: %s\n", strings.Join(c.SANs, " "))
+	s += fmt.Sprintf("SANs:       %s\n", strings.Join(c.SANs, " "))
 	s += fmt.Sprintln()
 	return s
 }
