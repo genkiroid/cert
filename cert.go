@@ -4,18 +4,23 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/golang/go/src/pkg/text/template"
 )
 
-const defaultTempl = `DomainName: {{.DomainName}}
+const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
 Start:      {{.Start}}
 End:        {{.End}}
 CommonName: {{.CommonName}}
 SANs:       {{.SANs}}
 
+{{end}}
+`
+
+const markdownTempl = `ドメイン名 | 有効期間の開始 | 有効期間の終了 | CN | SANs
+--- | --- | --- | --- | ---
+{{range .}}{{.DomainName}} | {{.Start}} | {{.End}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
 `
 
 type Certs []*Cert
@@ -52,21 +57,29 @@ func NewCerts(s []string) (Certs, error) {
 }
 
 func (certs Certs) String() string {
-	s := ""
-	for _, c := range certs {
-		s += c.String()
+	var b bytes.Buffer
+	t, err := template.New("default").Parse(defaultTempl)
+	if err != nil {
+		panic(err)
 	}
-	return s
+	err = t.Execute(&b, certs)
+	if err != nil {
+		panic(err)
+	}
+	return b.String()
 }
 
 func (certs Certs) Markdown() string {
-	s := ""
-	s += "ドメイン名 | 有効期間の開始 | 有効期間の終了 | CN | SANs\n"
-	s += "--- | --- | --- | --- | ---\n"
-	for _, c := range certs {
-		s += c.Markdown()
+	var b bytes.Buffer
+	t, err := template.New("markdown").Parse(markdownTempl)
+	if err != nil {
+		panic(err)
 	}
-	return s
+	err = t.Execute(&b, certs)
+	if err != nil {
+		panic(err)
+	}
+	return b.String()
 }
 
 func NewCert(d string) (*Cert, error) {
@@ -83,23 +96,4 @@ func NewCert(d string) (*Cert, error) {
 		Start:      cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		End:        cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
 	}, nil
-}
-
-func (c *Cert) String() string {
-	var b bytes.Buffer
-	t, err := template.New("default").Parse(defaultTempl)
-	if err != nil {
-		panic(err)
-	}
-	err = t.Execute(&b, c)
-	if err != nil {
-		panic(err)
-	}
-	return b.String()
-}
-
-func (c *Cert) Markdown() string {
-	s := ""
-	s += fmt.Sprintf("%s | %s | %s | %s | %s\n", c.DomainName, c.Start, c.End, c.CommonName, strings.Join(c.SANs, "<br/>"))
-	return s
 }
