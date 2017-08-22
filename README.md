@@ -14,3 +14,9 @@ $ go get github.com/genkiroid/cert/...
 $ cert example.com
 ```
 
+```sh
+$ cert -h
+Usage of cert:
+  -f string
+        Output format. md as markdown. (default "plain text")
+```
