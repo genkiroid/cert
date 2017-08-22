@@ -1,11 +1,22 @@
 package cert
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/golang/go/src/pkg/text/template"
 )
+
+const defaultTempl = `DomainName: {{.DomainName}}
+Start:      {{.Start}}
+End:        {{.End}}
+CommonName: {{.CommonName}}
+SANs:       {{.SANs}}
+
+`
 
 type Certs []*Cert
 
@@ -75,14 +86,16 @@ func NewCert(d string) (*Cert, error) {
 }
 
 func (c *Cert) String() string {
-	s := ""
-	s += fmt.Sprintf("DomainName: %s\n", c.DomainName)
-	s += fmt.Sprintf("Start:      %s\n", c.Start)
-	s += fmt.Sprintf("End:        %s\n", c.End)
-	s += fmt.Sprintf("CommonName: %s\n", c.CommonName)
-	s += fmt.Sprintf("SANs:       %s\n", strings.Join(c.SANs, " "))
-	s += fmt.Sprintln()
-	return s
+	var b bytes.Buffer
+	t, err := template.New("default").Parse(defaultTempl)
+	if err != nil {
+		panic(err)
+	}
+	err = t.Execute(&b, c)
+	if err != nil {
+		panic(err)
+	}
+	return b.String()
 }
 
 func (c *Cert) Markdown() string {
