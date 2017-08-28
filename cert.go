@@ -62,8 +62,7 @@ func (certs Certs) String() string {
 	if err != nil {
 		panic(err)
 	}
-	err = t.Execute(&b, certs)
-	if err != nil {
+	if err := t.Execute(&b, certs); err != nil {
 		panic(err)
 	}
 	return b.String()
@@ -75,8 +74,7 @@ func (certs Certs) Markdown() string {
 	if err != nil {
 		panic(err)
 	}
-	err = t.Execute(&b, certs)
-	if err != nil {
+	if err := t.Execute(&b, certs); err != nil {
 		panic(err)
 	}
 	return b.String()
