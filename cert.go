@@ -10,6 +10,7 @@ import (
 )
 
 const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
+Issuer:     {{.Issuer}}
 Start:      {{.Start}}
 End:        {{.End}}
 CommonName: {{.CommonName}}
@@ -18,15 +19,16 @@ SANs:       {{.SANs}}
 {{end}}
 `
 
-const markdownTempl = `ドメイン名 | 有効期間の開始 | 有効期間の終了 | CN | SANs
+const markdownTempl = `ドメイン名 | 発行元 | 有効期間の開始 | 有効期間の終了 | CN | SANs
 --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.Start}} | {{.End}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
+{{range .}}{{.DomainName}} | {{.Issuer}} | {{.Start}} | {{.End}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
 `
 
 type Certs []*Cert
 
 type Cert struct {
 	DomainName string
+	Issuer     string
 	CommonName string
 	SANs       []string
 	Start      string
@@ -89,6 +91,7 @@ func NewCert(d string) (*Cert, error) {
 	conn.Close()
 	return &Cert{
 		DomainName: d,
+		Issuer:     cert.Issuer.Organization[0],
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
 		Start:      cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
