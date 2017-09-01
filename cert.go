@@ -35,14 +35,6 @@ type Cert struct {
 	End        string
 }
 
-func init() {
-	loc, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
-		loc = time.FixedZone("Asia/Tokyo", 9*60*60)
-	}
-	time.Local = loc
-}
-
 func NewCerts(s []string) (Certs, error) {
 	if len(s) < 1 {
 		return nil, fmt.Errorf("ドメイン名をひとつ以上指定してください。")
