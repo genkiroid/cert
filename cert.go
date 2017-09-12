@@ -20,7 +20,7 @@ SANs:       {{.SANs}}
 `
 
 const markdownTempl = `ドメイン名 | 発行元 | 有効期間の開始 | 有効期間の終了 | CN | SANs
---- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | ---
 {{range .}}{{.DomainName}} | {{.Issuer}} | {{.Start}} | {{.End}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
 `
 
