@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang/go/src/pkg/text/template"
@@ -69,7 +70,7 @@ func (certs Certs) Markdown() string {
 	if err != nil {
 		panic(err)
 	}
-	if err := t.Execute(&b, certs); err != nil {
+	if err := t.Execute(&b, certs.escapeStar()); err != nil {
 		panic(err)
 	}
 	return b.String()
@@ -90,4 +91,13 @@ func NewCert(d string) (*Cert, error) {
 		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
 	}, nil
+}
+
+func (certs Certs) escapeStar() Certs {
+	for _, cert := range certs {
+		for i, san := range cert.SANs {
+			cert.SANs[i] = strings.Replace(san, "*", "\\*", -1)
+		}
+	}
+	return certs
 }
