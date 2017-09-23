@@ -11,17 +11,17 @@ import (
 
 const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
 Issuer:     {{.Issuer}}
-Start:      {{.Start}}
-End:        {{.End}}
+NotBefore:  {{.NotBefore}}
+NotAfter:   {{.NotAfter}}
 CommonName: {{.CommonName}}
 SANs:       {{.SANs}}
 
 {{end}}
 `
 
-const markdownTempl = `ドメイン名 | 発行元 | 有効期間の開始 | 有効期間の終了 | CN | SANs
+const markdownTempl = `DomainName | Issuer | NotBefore | NotAfter | CN | SANs
 --- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.Issuer}} | {{.Start}} | {{.End}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
+{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
 `
 
 type Certs []*Cert
@@ -31,13 +31,13 @@ type Cert struct {
 	Issuer     string
 	CommonName string
 	SANs       []string
-	Start      string
-	End        string
+	NotBefore  string
+	NotAfter   string
 }
 
 func NewCerts(s []string) (Certs, error) {
 	if len(s) < 1 {
-		return nil, fmt.Errorf("ドメイン名をひとつ以上指定してください。")
+		return nil, fmt.Errorf("Input at least one domain name.")
 	}
 	certs := Certs{}
 	for _, d := range s[:] {
@@ -86,7 +86,7 @@ func NewCert(d string) (*Cert, error) {
 		Issuer:     cert.Issuer.Organization[0],
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
-		Start:      cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
-		End:        cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
+		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
+		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
 	}, nil
 }
