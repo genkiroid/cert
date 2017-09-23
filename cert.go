@@ -21,7 +21,8 @@ SANs:       {{.SANs}}
 
 const markdownTempl = `DomainName | Issuer | NotBefore | NotAfter | CN | SANs
 --- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} {{end}}
+{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}}
+{{end}}
 `
 
 type Certs []*Cert
