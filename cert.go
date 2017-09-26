@@ -44,8 +44,16 @@ func NewCerts(s []string) (Certs, error) {
 		return nil, fmt.Errorf("Input at least one domain name.")
 	}
 	certs := Certs{}
+	ch := make(chan *Cert, len(s))
 	for _, d := range s[:] {
-		certs = append(certs, NewCert(d))
+		go func(d string) {
+			ch <- NewCert(d)
+		}(d)
+	}
+
+	for range s[:] {
+		c := <-ch
+		certs = append(certs, c)
 	}
 	return certs, nil
 }
@@ -88,6 +96,7 @@ func NewCert(d string) *Cert {
 		SANs:       cert.DNSNames,
 		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
+		Error:      "",
 	}
 }
 
