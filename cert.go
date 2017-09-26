@@ -16,13 +16,14 @@ NotBefore:  {{.NotBefore}}
 NotAfter:   {{.NotAfter}}
 CommonName: {{.CommonName}}
 SANs:       {{.SANs}}
+Error:      {{.Error}}
 
 {{end}}
 `
 
-const markdownTempl = `DomainName | Issuer | NotBefore | NotAfter | CN | SANs
---- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}}
+const markdownTempl = `DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | ---
+{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
 {{end}}
 `
 
@@ -35,6 +36,7 @@ type Cert struct {
 	SANs       []string
 	NotBefore  string
 	NotAfter   string
+	Error      string
 }
 
 func NewCerts(s []string) (Certs, error) {
@@ -43,11 +45,7 @@ func NewCerts(s []string) (Certs, error) {
 	}
 	certs := Certs{}
 	for _, d := range s[:] {
-		c, err := NewCert(d)
-		if err != nil {
-			return nil, err
-		}
-		certs = append(certs, c)
+		certs = append(certs, NewCert(d))
 	}
 	return certs, nil
 }
@@ -76,10 +74,10 @@ func (certs Certs) Markdown() string {
 	return b.String()
 }
 
-func NewCert(d string) (*Cert, error) {
+func NewCert(d string) *Cert {
 	conn, err := tls.Dial("tcp", d+":443", &tls.Config{})
 	if err != nil {
-		return nil, err
+		return &Cert{DomainName: d, Error: err.Error()}
 	}
 	cert := conn.ConnectionState().PeerCertificates[0]
 	conn.Close()
@@ -90,7 +88,7 @@ func NewCert(d string) (*Cert, error) {
 		SANs:       cert.DNSNames,
 		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
-	}, nil
+	}
 }
 
 func (certs Certs) escapeStar() Certs {
