@@ -39,10 +39,30 @@ type Cert struct {
 	Error      string
 }
 
-func NewCerts(s []string) (Certs, error) {
+func validate(s []string) error {
 	if len(s) < 1 {
-		return nil, fmt.Errorf("Input at least one domain name.")
+		return fmt.Errorf("Input at least one domain name.")
 	}
+	return nil
+}
+
+func NewCerts(s []string) (Certs, error) {
+	if err := validate(s); err != nil {
+		return nil, err
+	}
+
+	certs := Certs{}
+	for _, d := range s[:] {
+		certs = append(certs, NewCert(d))
+	}
+	return certs, nil
+}
+
+func NewAsyncCerts(s []string) (Certs, error) {
+	if err := validate(s); err != nil {
+		return nil, err
+	}
+
 	certs := Certs{}
 	ch := make(chan *Cert, len(s))
 	for _, d := range s[:] {
