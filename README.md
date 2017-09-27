@@ -21,3 +21,8 @@ Usage of cert:
   -f string
         Output format. md as markdown. (default "plain text")
 ```
+
+## License
+
+MIT
+
