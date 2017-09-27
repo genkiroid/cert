@@ -39,13 +39,41 @@ type Cert struct {
 	Error      string
 }
 
-func NewCerts(s []string) (Certs, error) {
+func validate(s []string) error {
 	if len(s) < 1 {
-		return nil, fmt.Errorf("Input at least one domain name.")
+		return fmt.Errorf("Input at least one domain name.")
 	}
+	return nil
+}
+
+func NewCerts(s []string) (Certs, error) {
+	if err := validate(s); err != nil {
+		return nil, err
+	}
+
 	certs := Certs{}
 	for _, d := range s[:] {
 		certs = append(certs, NewCert(d))
+	}
+	return certs, nil
+}
+
+func NewAsyncCerts(s []string) (Certs, error) {
+	if err := validate(s); err != nil {
+		return nil, err
+	}
+
+	certs := Certs{}
+	ch := make(chan *Cert, len(s))
+	for _, d := range s[:] {
+		go func(d string) {
+			ch <- NewCert(d)
+		}(d)
+	}
+
+	for range s[:] {
+		c := <-ch
+		certs = append(certs, c)
 	}
 	return certs, nil
 }
@@ -88,6 +116,7 @@ func NewCert(d string) *Cert {
 		SANs:       cert.DNSNames,
 		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
 		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
+		Error:      "",
 	}
 }
 
