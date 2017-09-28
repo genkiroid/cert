@@ -5,9 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"strings"
+	"text/template"
 	"time"
-
-	"github.com/golang/go/src/pkg/text/template"
 )
 
 const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
