@@ -9,7 +9,7 @@ import (
 )
 
 var a = flag.Bool("a", false, "Async mode. Output in no particular order.")
-var f = flag.String("f", "plain text", "Output format. md as markdown.")
+var f = flag.String("f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 
 func main() {
 	flag.Parse()
@@ -29,6 +29,8 @@ func main() {
 	switch *f {
 	case "md":
 		fmt.Printf("%s", c.Markdown())
+	case "json":
+		fmt.Printf("%s", c.JSON())
 	default:
 		fmt.Printf("%s", c)
 	}
