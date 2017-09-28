@@ -3,6 +3,7 @@ package cert
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"text/template"
@@ -99,6 +100,14 @@ func (certs Certs) Markdown() string {
 		panic(err)
 	}
 	return b.String()
+}
+
+func (certs Certs) JSON() []byte {
+	data, err := json.Marshal(certs)
+	if err != nil {
+		panic(err)
+	}
+	return data
 }
 
 func NewCert(d string) *Cert {

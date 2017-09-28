@@ -29,6 +29,8 @@ func main() {
 	switch *f {
 	case "md":
 		fmt.Printf("%s", c.Markdown())
+	case "json":
+		fmt.Printf("%s", c.JSON())
 	default:
 		fmt.Printf("%s", c)
 	}
