@@ -19,7 +19,7 @@ $ cert -h
 Usage of cert:
   -a    Async mode. Output in no particular order.
   -f string
-        Output format. md as markdown. (default "plain text")
+        Output format. md: as markdown, json: as JSON.  (default "simple table")
 ```
 
 ## License
