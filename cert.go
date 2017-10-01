@@ -3,6 +3,7 @@ package cert
 import (
 	"bytes"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -39,11 +40,37 @@ type Cert struct {
 	Error      string
 }
 
+var serverCert = func(d string) (*x509.Certificate, error) {
+	conn, err := tls.Dial("tcp", d+":443", &tls.Config{})
+	if err != nil {
+		return &x509.Certificate{}, err
+	}
+	cert := conn.ConnectionState().PeerCertificates[0]
+	conn.Close()
+	return cert, nil
+}
+
 func validate(s []string) error {
 	if len(s) < 1 {
 		return fmt.Errorf("Input at least one domain name.")
 	}
 	return nil
+}
+
+func NewCert(d string) *Cert {
+	cert, err := serverCert(d)
+	if err != nil {
+		return &Cert{DomainName: d, Error: err.Error()}
+	}
+	return &Cert{
+		DomainName: d,
+		Issuer:     cert.Issuer.Organization[0],
+		CommonName: cert.Subject.CommonName,
+		SANs:       cert.DNSNames,
+		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
+		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
+		Error:      "",
+	}
 }
 
 func NewCerts(s []string) (Certs, error) {
@@ -108,24 +135,6 @@ func (certs Certs) JSON() []byte {
 		panic(err)
 	}
 	return data
-}
-
-func NewCert(d string) *Cert {
-	conn, err := tls.Dial("tcp", d+":443", &tls.Config{})
-	if err != nil {
-		return &Cert{DomainName: d, Error: err.Error()}
-	}
-	cert := conn.ConnectionState().PeerCertificates[0]
-	conn.Close()
-	return &Cert{
-		DomainName: d,
-		Issuer:     cert.Issuer.Organization[0],
-		CommonName: cert.Subject.CommonName,
-		SANs:       cert.DNSNames,
-		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
-		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
-		Error:      "",
-	}
 }
 
 func (certs Certs) escapeStar() Certs {
