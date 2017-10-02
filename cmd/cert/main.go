@@ -9,6 +9,7 @@ import (
 )
 
 var a = flag.Bool("a", false, "Async mode. Output in no particular order.")
+var k = flag.Bool("k", false, "Skip verification of server's certificate chain and host name.")
 var f = flag.String("f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 
 func main() {
@@ -16,6 +17,9 @@ func main() {
 
 	var c cert.Certs
 	var err error
+
+	cert.SkipVerify = *k
+
 	if *a {
 		c, err = cert.NewAsyncCerts(flag.Args())
 	} else {

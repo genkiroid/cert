@@ -40,8 +40,12 @@ type Cert struct {
 	Error      string
 }
 
+var SkipVerify = false
+
 var serverCert = func(d string) (*x509.Certificate, error) {
-	conn, err := tls.Dial("tcp", d+":443", &tls.Config{})
+	conn, err := tls.Dial("tcp", d+":443", &tls.Config{
+		InsecureSkipVerify: SkipVerify,
+	})
 	if err != nil {
 		return &x509.Certificate{}, err
 	}
@@ -64,7 +68,7 @@ func NewCert(d string) *Cert {
 	}
 	return &Cert{
 		DomainName: d,
-		Issuer:     cert.Issuer.Organization[0],
+		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
 		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
