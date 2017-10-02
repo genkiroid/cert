@@ -11,7 +11,7 @@ func stubCert() {
 	serverCert = func(d string) (*x509.Certificate, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
-				Organization: []string{"organization"},
+				CommonName: "CA for test",
 			},
 			Subject: pkix.Name{
 				CommonName: d,
@@ -50,8 +50,8 @@ func TestNewCert(t *testing.T) {
 	if c.DomainName != "example.com" {
 		t.Errorf(`unexpected Cert.DomainName %q, want %q`, c.DomainName, "example.com")
 	}
-	if c.Issuer != "organization" {
-		t.Errorf(`unexpected Cert.Issuer %q, want %q`, c.Issuer, "organization")
+	if c.Issuer != "CA for test" {
+		t.Errorf(`unexpected Cert.Issuer %q, want %q`, c.Issuer, "CA for test")
 	}
 	if c.CommonName != "example.com" {
 		t.Errorf(`unexpected Cert.CommonName %q, want %q`, c.CommonName, "example.com")
@@ -104,7 +104,7 @@ func TestCertsAsString(t *testing.T) {
 	stubCert()
 
 	expected := `DomainName: example.com
-Issuer:     organization
+Issuer:     CA for test
 NotBefore:  2017/01/01 00:00:00
 NotAfter:   2018/01/01 00:00:00
 CommonName: example.com
@@ -126,7 +126,7 @@ func TestCertsAsMarkdown(t *testing.T) {
 
 	expected := `DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error
 --- | --- | --- | --- | --- | --- | ---
-example.com | organization | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.com | example.com<br/>www.example.com<br/> | 
+example.com | CA for test | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.com | example.com<br/>www.example.com<br/> | 
 
 `
 
@@ -140,7 +140,7 @@ example.com | organization | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example
 func TestCertsAsJSON(t *testing.T) {
 	stubCert()
 
-	expected := `[{"DomainName":"example.com","Issuer":"organization","CommonName":"example.com","SANs":["example.com","www.example.com"],"NotBefore":"2017/01/01 00:00:00","NotAfter":"2018/01/01 00:00:00","Error":""}]`
+	expected := `[{"DomainName":"example.com","Issuer":"CA for test","CommonName":"example.com","SANs":["example.com","www.example.com"],"NotBefore":"2017/01/01 00:00:00","NotAfter":"2018/01/01 00:00:00","Error":""}]`
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -153,7 +153,7 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 	serverCert = func(d string) (*x509.Certificate, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
-				Organization: []string{"organization"},
+				CommonName: "CA for test",
 			},
 			Subject: pkix.Name{
 				CommonName: d,
