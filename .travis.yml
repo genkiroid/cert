@@ -1,0 +1,9 @@
+language: go
+go:
+  - tip
+install:
+  - go get github.com/genkiroid/cert/...
+script:
+  - go test -v
+notifications:
+  email: false
