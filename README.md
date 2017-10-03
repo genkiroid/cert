@@ -1,5 +1,7 @@
 # cert
 
+[![Build Status](https://travis-ci.org/genkiroid/cert.svg?branch=master)](https://travis-ci.org/genkiroid/cert)
+
 Get server's certificate information.
 
 ## Installation
