@@ -1,5 +1,6 @@
 builds:
-  - binary: cert
+  - main: ./cmd/cert/main.go
+    binary: cert
     goos:
       - windows
       - darwin
