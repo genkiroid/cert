@@ -5,5 +5,7 @@ install:
   - go get github.com/genkiroid/cert/...
 script:
   - go test -v
+after_success:
+  - test -n "$TRAVIS_TAG" && curl -sL https://git.io/goreleaser | bash
 notifications:
   email: false
