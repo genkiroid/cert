@@ -6,6 +6,10 @@ Get server's certificate information.
 
 ## Installation
 
+Precompiled binaries for released versions are available in the [releases](https://github.com/genkiroid/cert/releases) page.
+
+Or `go get`.
+
 ```sh
 $ go get github.com/genkiroid/cert/...
 ```
