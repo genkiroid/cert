@@ -9,10 +9,12 @@ builds:
       - amd64
       - 386
 archive:
-  format: zip
   name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
   files:
     - README.md
+  format_overrides:
+    - goos: windows
+      format: zip
 release:
   github:
     owner: genkiroid
