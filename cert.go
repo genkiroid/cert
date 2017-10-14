@@ -83,7 +83,7 @@ func NewCerts(s []string) (Certs, error) {
 	}
 
 	certs := Certs{}
-	for _, d := range s[:] {
+	for _, d := range s {
 		certs = append(certs, NewCert(d))
 	}
 	return certs, nil
@@ -96,13 +96,13 @@ func NewAsyncCerts(s []string) (Certs, error) {
 
 	certs := Certs{}
 	ch := make(chan *Cert, len(s))
-	for _, d := range s[:] {
+	for _, d := range s {
 		go func(d string) {
 			ch <- NewCert(d)
 		}(d)
 	}
 
-	for range s[:] {
+	for range s {
 		c := <-ch
 		certs = append(certs, c)
 	}
