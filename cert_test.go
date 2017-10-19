@@ -17,8 +17,8 @@ func stubCert() {
 				CommonName: d,
 			},
 			DNSNames:  []string{d, "www." + d},
-			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
-			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.FixedZone("JST", 9*60*60)),
+			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.FixedZone("JST", 9*60*60)),
 		}, nil
 	}
 }
@@ -65,11 +65,11 @@ func TestNewCert(t *testing.T) {
 	if c.SANs[1] != "www.example.com" {
 		t.Errorf(`unexpected Cert.SANs[1] %q, want %q`, c.SANs[1], "www.example.com")
 	}
-	if c.NotBefore != "2017/01/01 00:00:00" {
-		t.Errorf(`unexpected Cert.NotBefore %q, want %q`, c.NotBefore, "2017/01/01 00:00:00")
+	if c.NotBefore != "2017-01-01 00:00:00 +0900 JST" {
+		t.Errorf(`unexpected Cert.NotBefore %q, want %q`, c.NotBefore, "2017-01-01 00:00:00 +0900 JST")
 	}
-	if c.NotAfter != "2018/01/01 00:00:00" {
-		t.Errorf(`unexpected Cert.NotAfter %q, want %q`, c.NotAfter, "2018/01/01 00:00:00")
+	if c.NotAfter != "2018-01-01 00:00:00 +0900 JST" {
+		t.Errorf(`unexpected Cert.NotAfter %q, want %q`, c.NotAfter, "2018-01-01 00:00:00 +0900 JST")
 	}
 	if c.Error != "" {
 		t.Errorf(`unexpected Cert.Error %q, want %q`, c.Error, "")
@@ -105,8 +105,8 @@ func TestCertsAsString(t *testing.T) {
 
 	expected := `DomainName: example.com
 Issuer:     CA for test
-NotBefore:  2017/01/01 00:00:00
-NotAfter:   2018/01/01 00:00:00
+NotBefore:  2017-01-01 00:00:00 +0900 JST
+NotAfter:   2018-01-01 00:00:00 +0900 JST
 CommonName: example.com
 SANs:       [example.com www.example.com]
 Error:      
@@ -126,7 +126,7 @@ func TestCertsAsMarkdown(t *testing.T) {
 
 	expected := `DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error
 --- | --- | --- | --- | --- | --- | ---
-example.com | CA for test | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.com | example.com<br/>www.example.com<br/> | 
+example.com | CA for test | 2017-01-01 00:00:00 +0900 JST | 2018-01-01 00:00:00 +0900 JST | example.com | example.com<br/>www.example.com<br/> | 
 
 `
 
@@ -140,7 +140,7 @@ example.com | CA for test | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.
 func TestCertsAsJSON(t *testing.T) {
 	stubCert()
 
-	expected := `[{"DomainName":"example.com","Issuer":"CA for test","CommonName":"example.com","SANs":["example.com","www.example.com"],"NotBefore":"2017/01/01 00:00:00","NotAfter":"2018/01/01 00:00:00","Error":""}]`
+	expected := `[{"DomainName":"example.com","Issuer":"CA for test","CommonName":"example.com","SANs":["example.com","www.example.com"],"NotBefore":"2017-01-01 00:00:00 +0900 JST","NotAfter":"2018-01-01 00:00:00 +0900 JST","Error":""}]`
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -159,8 +159,8 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 				CommonName: d,
 			},
 			DNSNames:  []string{d, "*." + d}, // include star
-			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
-			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.FixedZone("JST", 9*60*60)),
+			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.FixedZone("JST", 9*60*60)),
 		}, nil
 	}
 

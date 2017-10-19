@@ -71,8 +71,8 @@ func NewCert(d string) *Cert {
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
-		NotBefore:  cert.NotBefore.In(time.Local).Format("2006/01/02 15:04:05"),
-		NotAfter:   cert.NotAfter.In(time.Local).Format("2006/01/02 15:04:05"),
+		NotBefore:  cert.NotBefore.In(time.Local).String(),
+		NotAfter:   cert.NotAfter.In(time.Local).String(),
 		Error:      "",
 	}
 }
