@@ -3,6 +3,7 @@ package cert
 import (
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -43,6 +44,7 @@ func TestNewCert(t *testing.T) {
 	input := "example.com"
 
 	c := NewCert(input)
+	origCert, _ := serverCert(input)
 
 	if _, ok := interface{}(c).(*Cert); !ok {
 		t.Errorf(`NewCert(%q) was not returned *Cert`, input)
@@ -65,11 +67,11 @@ func TestNewCert(t *testing.T) {
 	if c.SANs[1] != "www.example.com" {
 		t.Errorf(`unexpected Cert.SANs[1] %q, want %q`, c.SANs[1], "www.example.com")
 	}
-	if c.NotBefore != "2017/01/01 00:00:00" {
-		t.Errorf(`unexpected Cert.NotBefore %q, want %q`, c.NotBefore, "2017/01/01 00:00:00")
+	if c.NotBefore != origCert.NotBefore.String() {
+		t.Errorf(`unexpected Cert.NotBefore %q, want %q`, c.NotBefore, origCert.NotBefore.String())
 	}
-	if c.NotAfter != "2018/01/01 00:00:00" {
-		t.Errorf(`unexpected Cert.NotAfter %q, want %q`, c.NotAfter, "2018/01/01 00:00:00")
+	if c.NotAfter != origCert.NotAfter.String() {
+		t.Errorf(`unexpected Cert.NotAfter %q, want %q`, c.NotAfter, origCert.NotAfter.String())
 	}
 	if c.Error != "" {
 		t.Errorf(`unexpected Cert.Error %q, want %q`, c.Error, "")
@@ -103,16 +105,9 @@ func TestNewAsyncCerts(t *testing.T) {
 func TestCertsAsString(t *testing.T) {
 	stubCert()
 
-	expected := `DomainName: example.com
-Issuer:     CA for test
-NotBefore:  2017/01/01 00:00:00
-NotAfter:   2018/01/01 00:00:00
-CommonName: example.com
-SANs:       [example.com www.example.com]
-Error:      
+	origCert, _ := serverCert("example.com")
 
-
-`
+	expected := fmt.Sprintf("DomainName: example.com\nIssuer:     CA for test\nNotBefore:  %s\nNotAfter:   %s\nCommonName: example.com\nSANs:       [example.com www.example.com]\nError:      \n\n\n", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -124,11 +119,9 @@ Error:
 func TestCertsAsMarkdown(t *testing.T) {
 	stubCert()
 
-	expected := `DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | ---
-example.com | CA for test | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.com | example.com<br/>www.example.com<br/> | 
+	origCert, _ := serverCert("example.com")
 
-`
+	expected := fmt.Sprintf("DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error\n--- | --- | --- | --- | --- | --- | ---\nexample.com | CA for test | %s | %s | example.com | example.com<br/>www.example.com<br/> | \n\n", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -140,7 +133,9 @@ example.com | CA for test | 2017/01/01 00:00:00 | 2018/01/01 00:00:00 | example.
 func TestCertsAsJSON(t *testing.T) {
 	stubCert()
 
-	expected := `[{"DomainName":"example.com","Issuer":"CA for test","CommonName":"example.com","SANs":["example.com","www.example.com"],"NotBefore":"2017/01/01 00:00:00","NotAfter":"2018/01/01 00:00:00","Error":""}]`
+	origCert, _ := serverCert("example.com")
+
+	expected := fmt.Sprintf("[{\"DomainName\":\"example.com\",\"Issuer\":\"CA for test\",\"CommonName\":\"example.com\",\"SANs\":[\"example.com\",\"www.example.com\"],\"NotBefore\":%q,\"NotAfter\":%q,\"Error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
