@@ -20,23 +20,23 @@ $ go get github.com/genkiroid/cert/...
 $ cert github.com google.co.jp
 DomainName: github.com
 Issuer:     DigiCert SHA2 Extended Validation Server CA
-NotBefore:  2016/03/10 09:00:00
-NotAfter:   2018/05/17 21:00:00
+NotBefore:  2016-03-10 09:00:00 +0900 JST
+NotAfter:   2018-05-17 21:00:00 +0900 JST
 CommonName: github.com
 SANs:       [github.com www.github.com]
 Error:
 
 DomainName: google.co.jp
 Issuer:     Google Internet Authority G2
-NotBefore:  2017/09/14 02:11:49
-NotAfter:   2017/12/07 02:09:00
+NotBefore:  2017-09-14 02:11:49 +0900 JST
+NotAfter:   2017-12-07 02:09:00 +0900 JST
 CommonName: *.google.co.jp
 SANs:       [*.google.co.jp google.co.jp]
 Error:
 
 ```
 
-See help for more options.
+Options are
 
 ```sh
 $ cert -h
@@ -49,5 +49,9 @@ Usage of cert:
 
 ## License
 
-MIT
+[MIT](https://github.com/genkiroid/cert/blob/master/LICENSE)
+
+## Author
+
+[genkiroid](https://github.com/genkiroid)
 
