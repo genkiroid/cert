@@ -6,7 +6,15 @@ Get server's certificate information.
 
 ## Installation
 
-Precompiled binaries for released versions are available in the [releases](https://github.com/genkiroid/cert/releases) page.
+For Mac it provide Homebrew integration.
+Please install like following.
+
+```sh
+$ brew tap genkiroid/homebrew-cert
+$ brew install cert
+```
+
+For other platforms, Precompiled binaries for released versions are available in the [releases](https://github.com/genkiroid/cert/releases) page.
 
 Or `go get`.
 
