@@ -23,12 +23,3 @@ release:
   github:
     owner: genkiroid
     name: cert
-brew:
-  github:
-    owner: genkiroid
-    name: homebrew-cert
-  commit_author:
-    name: genkiroid
-    email: gamurai@gmail.com
-  homepage: "https://github.com/genkiroid/cert"
-  description: "Get server's certificate information."
