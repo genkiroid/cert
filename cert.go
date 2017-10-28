@@ -6,12 +6,14 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strings"
 	"text/template"
 	"time"
 )
 
 const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
+IP:         {{.IP}}
 Issuer:     {{.Issuer}}
 NotBefore:  {{.NotBefore}}
 NotAfter:   {{.NotAfter}}
@@ -22,9 +24,9 @@ Error:      {{.Error}}
 {{end}}
 `
 
-const markdownTempl = `DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
+const markdownTempl = `DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | ---
+{{range .}}{{.DomainName}} | {{.IP}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
 {{end}}
 `
 
@@ -32,6 +34,7 @@ type Certs []*Cert
 
 type Cert struct {
 	DomainName string
+	IP         string
 	Issuer     string
 	CommonName string
 	SANs       []string
@@ -42,16 +45,19 @@ type Cert struct {
 
 var SkipVerify = false
 
-var serverCert = func(d string) (*x509.Certificate, error) {
+var serverCert = func(d string) (*x509.Certificate, string, error) {
 	conn, err := tls.Dial("tcp", d+":443", &tls.Config{
 		InsecureSkipVerify: SkipVerify,
 	})
 	if err != nil {
-		return &x509.Certificate{}, err
+		return &x509.Certificate{}, "", err
 	}
+	addr := conn.RemoteAddr()
+	host, _, _ := net.SplitHostPort(addr.String())
 	cert := conn.ConnectionState().PeerCertificates[0]
 	conn.Close()
-	return cert, nil
+
+	return cert, host, nil
 }
 
 func validate(s []string) error {
@@ -62,12 +68,13 @@ func validate(s []string) error {
 }
 
 func NewCert(d string) *Cert {
-	cert, err := serverCert(d)
+	cert, ip, err := serverCert(d)
 	if err != nil {
 		return &Cert{DomainName: d, Error: err.Error()}
 	}
 	return &Cert{
 		DomainName: d,
+		IP:         ip,
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
