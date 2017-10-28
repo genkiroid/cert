@@ -9,7 +9,7 @@ import (
 )
 
 func stubCert() {
-	serverCert = func(d string) (*x509.Certificate, error) {
+	serverCert = func(d string) (*x509.Certificate, string, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
 				CommonName: "CA for test",
@@ -20,7 +20,7 @@ func stubCert() {
 			DNSNames:  []string{d, "www." + d},
 			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
 			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
-		}, nil
+		}, "127.0.0.1", nil
 	}
 }
 
@@ -44,13 +44,16 @@ func TestNewCert(t *testing.T) {
 	input := "example.com"
 
 	c := NewCert(input)
-	origCert, _ := serverCert(input)
+	origCert, _, _ := serverCert(input)
 
 	if _, ok := interface{}(c).(*Cert); !ok {
 		t.Errorf(`NewCert(%q) was not returned *Cert`, input)
 	}
 	if c.DomainName != "example.com" {
 		t.Errorf(`unexpected Cert.DomainName %q, want %q`, c.DomainName, "example.com")
+	}
+	if c.IP != "127.0.0.1" {
+		t.Errorf(`unexpected Cert.IP %q, want %q`, c.IP, "127.0.0.1")
 	}
 	if c.Issuer != "CA for test" {
 		t.Errorf(`unexpected Cert.Issuer %q, want %q`, c.Issuer, "CA for test")
@@ -105,9 +108,19 @@ func TestNewAsyncCerts(t *testing.T) {
 func TestCertsAsString(t *testing.T) {
 	stubCert()
 
-	origCert, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com")
 
-	expected := fmt.Sprintf("DomainName: example.com\nIssuer:     CA for test\nNotBefore:  %s\nNotAfter:   %s\nCommonName: example.com\nSANs:       [example.com www.example.com]\nError:      \n\n\n", origCert.NotBefore.String(), origCert.NotAfter.String())
+	expected := fmt.Sprintf(`DomainName: example.com
+IP:         127.0.0.1
+Issuer:     CA for test
+NotBefore:  %s
+NotAfter:   %s
+CommonName: example.com
+SANs:       [example.com www.example.com]
+Error:      
+
+
+`, origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -119,9 +132,13 @@ func TestCertsAsString(t *testing.T) {
 func TestCertsAsMarkdown(t *testing.T) {
 	stubCert()
 
-	origCert, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com")
 
-	expected := fmt.Sprintf("DomainName | Issuer | NotBefore | NotAfter | CN | SANs | Error\n--- | --- | --- | --- | --- | --- | ---\nexample.com | CA for test | %s | %s | example.com | example.com<br/>www.example.com<br/> | \n\n", origCert.NotBefore.String(), origCert.NotAfter.String())
+	expected := fmt.Sprintf(`DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | ---
+example.com | 127.0.0.1 | CA for test | %s | %s | example.com | example.com<br/>www.example.com<br/> | 
+
+`, origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -133,9 +150,9 @@ func TestCertsAsMarkdown(t *testing.T) {
 func TestCertsAsJSON(t *testing.T) {
 	stubCert()
 
-	origCert, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com")
 
-	expected := fmt.Sprintf("[{\"DomainName\":\"example.com\",\"Issuer\":\"CA for test\",\"CommonName\":\"example.com\",\"SANs\":[\"example.com\",\"www.example.com\"],\"NotBefore\":%q,\"NotAfter\":%q,\"Error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
+	expected := fmt.Sprintf("[{\"DomainName\":\"example.com\",\"IP\":\"127.0.0.1\",\"Issuer\":\"CA for test\",\"CommonName\":\"example.com\",\"SANs\":[\"example.com\",\"www.example.com\"],\"NotBefore\":%q,\"NotAfter\":%q,\"Error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
@@ -145,7 +162,7 @@ func TestCertsAsJSON(t *testing.T) {
 }
 
 func TestCertsEscapeStarInSANs(t *testing.T) {
-	serverCert = func(d string) (*x509.Certificate, error) {
+	serverCert = func(d string) (*x509.Certificate, string, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
 				CommonName: "CA for test",
@@ -156,7 +173,7 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 			DNSNames:  []string{d, "*." + d}, // include star
 			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
 			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
-		}, nil
+		}, "127.0.0.1", nil
 	}
 
 	certs, _ := NewCerts([]string{"example.com"})
