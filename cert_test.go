@@ -9,15 +9,15 @@ import (
 )
 
 func stubCert() {
-	serverCert = func(d string) (*x509.Certificate, string, error) {
+	serverCert = func(host, port string) (*x509.Certificate, string, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
 				CommonName: "CA for test",
 			},
 			Subject: pkix.Name{
-				CommonName: d,
+				CommonName: host,
 			},
-			DNSNames:  []string{d, "www." + d},
+			DNSNames:  []string{host, "www." + host},
 			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
 			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
 		}, "127.0.0.1", nil
@@ -38,13 +38,42 @@ func TestValidateError(t *testing.T) {
 	}
 }
 
+func TestSplitHostPort(t *testing.T) {
+	type want struct {
+		host string
+		port string
+		err  error
+	}
+	var tests = []struct {
+		input string
+		want  want
+	}{
+		{"example.com", want{"example.com", defaultPort, nil}},
+		{"example.com:443", want{"example.com", "443", nil}},
+		{"imap.example.com:993", want{"imap.example.com", "993", nil}},
+		{"smtp.example.com:465", want{"smtp.example.com", "465", nil}},
+	}
+
+	for _, test := range tests {
+		host, port, err := SplitHostPort(test.input)
+		got := want{
+			host,
+			port,
+			err,
+		}
+		if got != test.want {
+			t.Errorf("SplitHostPort(%q) = %v, want %v", test.input, got, test.want)
+		}
+	}
+}
+
 func TestNewCert(t *testing.T) {
 	stubCert()
 
 	input := "example.com"
 
 	c := NewCert(input)
-	origCert, _, _ := serverCert(input)
+	origCert, _, _ := serverCert(input, defaultPort)
 
 	if _, ok := interface{}(c).(*Cert); !ok {
 		t.Errorf(`NewCert(%q) was not returned *Cert`, input)
@@ -108,7 +137,7 @@ func TestNewAsyncCerts(t *testing.T) {
 func TestCertsAsString(t *testing.T) {
 	stubCert()
 
-	origCert, _, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com", defaultPort)
 
 	expected := fmt.Sprintf(`DomainName: example.com
 IP:         127.0.0.1
@@ -132,7 +161,7 @@ Error:
 func TestCertsAsMarkdown(t *testing.T) {
 	stubCert()
 
-	origCert, _, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com", defaultPort)
 
 	expected := fmt.Sprintf(`DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
 --- | --- | --- | --- | --- | --- | --- | ---
@@ -150,7 +179,7 @@ example.com | 127.0.0.1 | CA for test | %s | %s | example.com | example.com<br/>
 func TestCertsAsJSON(t *testing.T) {
 	stubCert()
 
-	origCert, _, _ := serverCert("example.com")
+	origCert, _, _ := serverCert("example.com", defaultPort)
 
 	expected := fmt.Sprintf("[{\"DomainName\":\"example.com\",\"IP\":\"127.0.0.1\",\"Issuer\":\"CA for test\",\"CommonName\":\"example.com\",\"SANs\":[\"example.com\",\"www.example.com\"],\"NotBefore\":%q,\"NotAfter\":%q,\"Error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
 
@@ -162,15 +191,15 @@ func TestCertsAsJSON(t *testing.T) {
 }
 
 func TestCertsEscapeStarInSANs(t *testing.T) {
-	serverCert = func(d string) (*x509.Certificate, string, error) {
+	serverCert = func(host, port string) (*x509.Certificate, string, error) {
 		return &x509.Certificate{
 			Issuer: pkix.Name{
 				CommonName: "CA for test",
 			},
 			Subject: pkix.Name{
-				CommonName: d,
+				CommonName: host,
 			},
-			DNSNames:  []string{d, "*." + d}, // include star
+			DNSNames:  []string{host, "*." + host}, // include star
 			NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
 			NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
 		}, "127.0.0.1", nil

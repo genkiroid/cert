@@ -30,6 +30,8 @@ const markdownTempl = `DomainName | IP | Issuer | NotBefore | NotAfter | CN | SA
 {{end}}
 `
 
+const defaultPort = "443"
+
 type Certs []*Cert
 
 type Cert struct {
@@ -45,19 +47,19 @@ type Cert struct {
 
 var SkipVerify = false
 
-var serverCert = func(d string) (*x509.Certificate, string, error) {
-	conn, err := tls.Dial("tcp", d+":443", &tls.Config{
+var serverCert = func(host, port string) (*x509.Certificate, string, error) {
+	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
 		InsecureSkipVerify: SkipVerify,
 	})
 	if err != nil {
 		return &x509.Certificate{}, "", err
 	}
+	defer conn.Close()
 	addr := conn.RemoteAddr()
-	host, _, _ := net.SplitHostPort(addr.String())
+	ip, _, _ := net.SplitHostPort(addr.String())
 	cert := conn.ConnectionState().PeerCertificates[0]
-	conn.Close()
 
-	return cert, host, nil
+	return cert, ip, nil
 }
 
 func validate(s []string) error {
@@ -67,13 +69,33 @@ func validate(s []string) error {
 	return nil
 }
 
-func NewCert(d string) *Cert {
-	cert, ip, err := serverCert(d)
+func SplitHostPort(hostport string) (string, string, error) {
+	host, port, err := net.SplitHostPort(hostport)
 	if err != nil {
-		return &Cert{DomainName: d, Error: err.Error()}
+		var ae *net.AddrError
+		var ok bool
+		if ae, ok = err.(*net.AddrError); !ok {
+			return "", "", err
+		}
+		if strings.Contains(ae.Error(), "missing port in address") {
+			return hostport, defaultPort, nil
+		}
+		return "", "", err
+	}
+	return host, port, nil
+}
+
+func NewCert(hostport string) *Cert {
+	host, port, err := SplitHostPort(hostport)
+	if err != nil {
+		return &Cert{DomainName: host, Error: err.Error()}
+	}
+	cert, ip, err := serverCert(host, port)
+	if err != nil {
+		return &Cert{DomainName: host, Error: err.Error()}
 	}
 	return &Cert{
-		DomainName: d,
+		DomainName: host,
 		IP:         ip,
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
