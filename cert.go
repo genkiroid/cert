@@ -140,10 +140,7 @@ func NewAsyncCerts(s []string) (Certs, error) {
 
 func (certs Certs) String() string {
 	var b bytes.Buffer
-	t, err := template.New("default").Parse(defaultTempl)
-	if err != nil {
-		panic(err)
-	}
+	t := template.Must(template.New("default").Parse(defaultTempl))
 	if err := t.Execute(&b, certs); err != nil {
 		panic(err)
 	}
@@ -152,10 +149,7 @@ func (certs Certs) String() string {
 
 func (certs Certs) Markdown() string {
 	var b bytes.Buffer
-	t, err := template.New("markdown").Parse(markdownTempl)
-	if err != nil {
-		panic(err)
-	}
+	t := template.Must(template.New("markdown").Parse(markdownTempl))
 	if err := t.Execute(&b, certs.escapeStar()); err != nil {
 		panic(err)
 	}
