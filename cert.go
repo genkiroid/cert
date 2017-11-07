@@ -45,6 +45,8 @@ type Cert struct {
 	Error      string
 }
 
+var tokens = make(chan struct{}, 128)
+
 var SkipVerify = false
 
 var serverCert = func(host, port string) (*x509.Certificate, string, error) {
@@ -111,29 +113,24 @@ func NewCerts(s []string) (Certs, error) {
 		return nil, err
 	}
 
-	certs := Certs{}
-	for _, d := range s {
-		certs = append(certs, NewCert(d))
-	}
-	return certs, nil
-}
-
-func NewAsyncCerts(s []string) (Certs, error) {
-	if err := validate(s); err != nil {
-		return nil, err
+	type indexer struct {
+		index int
+		cert  *Cert
 	}
 
-	certs := Certs{}
-	ch := make(chan *Cert, len(s))
-	for _, d := range s {
-		go func(d string) {
-			ch <- NewCert(d)
-		}(d)
+	certs := make(Certs, len(s))
+	ch := make(chan *indexer, len(s))
+	for i, d := range s {
+		go func(i int, d string) {
+			tokens <- struct{}{}
+			ch <- &indexer{i, NewCert(d)}
+			<-tokens
+		}(i, d)
 	}
 
 	for range s {
-		c := <-ch
-		certs = append(certs, c)
+		i := <-ch
+		certs[i.index] = i.cert
 	}
 	return certs, nil
 }
