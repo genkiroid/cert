@@ -8,11 +8,21 @@ import (
 	"github.com/genkiroid/cert"
 )
 
+var version = ""
+
 var k = flag.Bool("k", false, "Skip verification of server's certificate chain and host name.")
 var f = flag.String("f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 
 func main() {
+	var showVersion bool
+	flag.BoolVar(&showVersion, "v", false, "Show version.")
+	flag.BoolVar(&showVersion, "version", false, "Show version.")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Println("cert version ", version)
+		return
+	}
 
 	var c cert.Certs
 	var err error
