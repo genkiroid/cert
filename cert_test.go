@@ -122,18 +122,6 @@ func TestNewCerts(t *testing.T) {
 	}
 }
 
-func TestNewAsyncCerts(t *testing.T) {
-	stubCert()
-
-	input := []string{"example.com"}
-
-	certs, _ := NewAsyncCerts(input)
-
-	if _, ok := interface{}(certs).(Certs); !ok {
-		t.Errorf(`unexpected return type %T, want Certs`, certs)
-	}
-}
-
 func TestCertsAsString(t *testing.T) {
 	stubCert()
 

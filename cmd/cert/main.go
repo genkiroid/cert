@@ -8,23 +8,28 @@ import (
 	"github.com/genkiroid/cert"
 )
 
-var a = flag.Bool("a", false, "Async mode. Output in no particular order.")
+var version = ""
+
 var k = flag.Bool("k", false, "Skip verification of server's certificate chain and host name.")
 var f = flag.String("f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 
 func main() {
+	var showVersion bool
+	flag.BoolVar(&showVersion, "v", false, "Show version.")
+	flag.BoolVar(&showVersion, "version", false, "Show version.")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Println("cert version ", version)
+		return
+	}
 
 	var c cert.Certs
 	var err error
 
 	cert.SkipVerify = *k
 
-	if *a {
-		c, err = cert.NewAsyncCerts(flag.Args())
-	} else {
-		c, err = cert.NewCerts(flag.Args())
-	}
+	c, err = cert.NewCerts(flag.Args())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
