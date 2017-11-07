@@ -87,7 +87,6 @@ Options are
 ```sh
 $ cert -h
 Usage of cert:
-  -a    Async mode. Output in no particular order.
   -f string
         Output format. md: as markdown, json: as JSON.  (default "simple table")
   -k    Skip verification of server's certificate chain and host name.
