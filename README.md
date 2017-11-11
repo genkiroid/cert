@@ -90,6 +90,9 @@ Usage of cert:
   -f string
         Output format. md: as markdown, json: as JSON.  (default "simple table")
   -k    Skip verification of server's certificate chain and host name.
+  -v    Show version.
+  -version
+        Show version.
 ```
 
 ## License
