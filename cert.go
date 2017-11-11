@@ -35,14 +35,14 @@ const defaultPort = "443"
 type Certs []*Cert
 
 type Cert struct {
-	DomainName string
-	IP         string
-	Issuer     string
-	CommonName string
-	SANs       []string
-	NotBefore  string
-	NotAfter   string
-	Error      string
+	DomainName string   `json:"domainName"`
+	IP         string   `json:"ip"`
+	Issuer     string   `json:"issuer"`
+	CommonName string   `json:"commonName"`
+	SANs       []string `json:"sans"`
+	NotBefore  string   `json:"notBefore"`
+	NotAfter   string   `json:"notAfter"`
+	Error      string   `json:"error"`
 }
 
 var tokens = make(chan struct{}, 128)

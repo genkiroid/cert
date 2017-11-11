@@ -169,7 +169,7 @@ func TestCertsAsJSON(t *testing.T) {
 
 	origCert, _, _ := serverCert("example.com", defaultPort)
 
-	expected := fmt.Sprintf("[{\"DomainName\":\"example.com\",\"IP\":\"127.0.0.1\",\"Issuer\":\"CA for test\",\"CommonName\":\"example.com\",\"SANs\":[\"example.com\",\"www.example.com\"],\"NotBefore\":%q,\"NotAfter\":%q,\"Error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
+	expected := fmt.Sprintf("[{\"domainName\":\"example.com\",\"ip\":\"127.0.0.1\",\"issuer\":\"CA for test\",\"commonName\":\"example.com\",\"sans\":[\"example.com\",\"www.example.com\"],\"notBefore\":%q,\"notAfter\":%q,\"error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
