@@ -10,11 +10,13 @@ import (
 
 var version = ""
 
-var k = flag.Bool("k", false, "Skip verification of server's certificate chain and host name.")
-var f = flag.String("f", "simple table", "Output format. md: as markdown, json: as JSON. ")
-
 func main() {
+	var skipVerify bool
+	var format string
 	var showVersion bool
+
+	flag.BoolVar(&skipVerify, "k", false, "Skip verification of server's certificate chain and host name.")
+	flag.StringVar(&format, "f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
 	flag.Parse()
@@ -27,7 +29,7 @@ func main() {
 	var c cert.Certs
 	var err error
 
-	cert.SkipVerify = *k
+	cert.SkipVerify = skipVerify
 
 	c, err = cert.NewCerts(flag.Args())
 	if err != nil {
@@ -35,7 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	switch *f {
+	switch format {
 	case "md":
 		fmt.Printf("%s", c.Markdown())
 	case "json":
