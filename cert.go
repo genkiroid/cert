@@ -6,7 +6,10 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
@@ -49,6 +52,8 @@ var tokens = make(chan struct{}, 128)
 
 var SkipVerify = false
 
+var userTempl string
+
 var serverCert = func(host, port string) (*x509.Certificate, string, error) {
 	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
 		InsecureSkipVerify: SkipVerify,
@@ -62,13 +67,6 @@ var serverCert = func(host, port string) (*x509.Certificate, string, error) {
 	cert := conn.ConnectionState().PeerCertificates[0]
 
 	return cert, ip, nil
-}
-
-func validate(s []string) error {
-	if len(s) < 1 {
-		return fmt.Errorf("Input at least one domain name.")
-	}
-	return nil
 }
 
 func SplitHostPort(hostport string) (string, string, error) {
@@ -85,6 +83,37 @@ func SplitHostPort(hostport string) (string, string, error) {
 		return "", "", err
 	}
 	return host, port, nil
+}
+
+func SetUserTempl(templ string) error {
+	if templ == "" {
+		return nil
+	}
+
+	path, err := filepath.Abs(templ)
+	if err != nil {
+		return err
+	}
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		userTempl = templ
+		return nil
+	}
+
+	userTempl = string(content)
+
+	return nil
+}
+
+func validate(s []string) error {
+	if len(s) < 1 {
+		return fmt.Errorf("Input at least one domain name.")
+	}
+	return nil
 }
 
 func NewCert(hostport string) *Cert {
@@ -137,7 +166,15 @@ func NewCerts(s []string) (Certs, error) {
 
 func (certs Certs) String() string {
 	var b bytes.Buffer
-	t := template.Must(template.New("default").Parse(defaultTempl))
+	var templ string
+
+	if userTempl != "" {
+		templ = userTempl
+	} else {
+		templ = defaultTempl
+	}
+
+	t := template.Must(template.New("default").Parse(templ))
 	if err := t.Execute(&b, certs); err != nil {
 		panic(err)
 	}
