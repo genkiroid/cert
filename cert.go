@@ -38,14 +38,15 @@ const defaultPort = "443"
 type Certs []*Cert
 
 type Cert struct {
-	DomainName string   `json:"domainName"`
-	IP         string   `json:"ip"`
-	Issuer     string   `json:"issuer"`
-	CommonName string   `json:"commonName"`
-	SANs       []string `json:"sans"`
-	NotBefore  string   `json:"notBefore"`
-	NotAfter   string   `json:"notAfter"`
-	Error      string   `json:"error"`
+	DomainName  string            `json:"domainName"`
+	IP          string            `json:"ip"`
+	Issuer      string            `json:"issuer"`
+	CommonName  string            `json:"commonName"`
+	SANs        []string          `json:"sans"`
+	NotBefore   string            `json:"notBefore"`
+	NotAfter    string            `json:"notAfter"`
+	Error       string            `json:"error"`
+	Certificate *x509.Certificate `json:"-"`
 }
 
 var tokens = make(chan struct{}, 128)
@@ -126,14 +127,15 @@ func NewCert(hostport string) *Cert {
 		return &Cert{DomainName: host, Error: err.Error()}
 	}
 	return &Cert{
-		DomainName: host,
-		IP:         ip,
-		Issuer:     cert.Issuer.CommonName,
-		CommonName: cert.Subject.CommonName,
-		SANs:       cert.DNSNames,
-		NotBefore:  cert.NotBefore.In(time.Local).String(),
-		NotAfter:   cert.NotAfter.In(time.Local).String(),
-		Error:      "",
+		DomainName:  host,
+		IP:          ip,
+		Issuer:      cert.Issuer.CommonName,
+		CommonName:  cert.Subject.CommonName,
+		SANs:        cert.DNSNames,
+		NotBefore:   cert.NotBefore.In(time.Local).String(),
+		NotAfter:    cert.NotAfter.In(time.Local).String(),
+		Error:       "",
+		Certificate: cert,
 	}
 }
 
