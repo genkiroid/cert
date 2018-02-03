@@ -201,3 +201,15 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 		t.Errorf(`unexpected escaped value %q, want %q`, certs[0].SANs[1], "\\*.example.com")
 	}
 }
+
+func TestSetUserTempl(t *testing.T) {
+	stubCert()
+	_ = SetUserTempl("{{range .}}Issuer: {{.Issuer}}{{end}}")
+	expected := "Issuer: CA for test"
+
+	certs, _ := NewCerts([]string{"example.com"})
+
+	if certs.String() != expected {
+		t.Errorf(`unexpected return value %q, want %q`, certs.String(), expected)
+	}
+}
