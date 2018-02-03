@@ -166,12 +166,10 @@ func NewCerts(s []string) (Certs, error) {
 
 func (certs Certs) String() string {
 	var b bytes.Buffer
-	var templ string
 
+	templ := defaultTempl
 	if userTempl != "" {
 		templ = userTempl
-	} else {
-		templ = defaultTempl
 	}
 
 	t := template.Must(template.New("default").Parse(templ))
