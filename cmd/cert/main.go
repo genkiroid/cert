@@ -54,8 +54,7 @@ func main() {
 	if err := cert.SetUserTempl(template); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
-	} else {
-		fmt.Printf("%s", c)
-		return
 	}
+
+	fmt.Printf("%s", c)
 }
