@@ -38,15 +38,16 @@ const defaultPort = "443"
 type Certs []*Cert
 
 type Cert struct {
-	DomainName  string            `json:"domainName"`
-	IP          string            `json:"ip"`
-	Issuer      string            `json:"issuer"`
-	CommonName  string            `json:"commonName"`
-	SANs        []string          `json:"sans"`
-	NotBefore   string            `json:"notBefore"`
-	NotAfter    string            `json:"notAfter"`
-	Error       string            `json:"error"`
-	Certificate *x509.Certificate `json:"-"`
+	DomainName  string              `json:"domainName"`
+	IP          string              `json:"ip"`
+	Issuer      string              `json:"issuer"`
+	CommonName  string              `json:"commonName"`
+	SANs        []string            `json:"sans"`
+	NotBefore   string              `json:"notBefore"`
+	NotAfter    string              `json:"notAfter"`
+	Error       string              `json:"error"`
+	Certificate *x509.Certificate   `json:"-"`
+	CertChain   []*x509.Certificate `json:"-"`
 }
 
 var tokens = make(chan struct{}, 128)
@@ -55,17 +56,17 @@ var SkipVerify = false
 
 var userTempl string
 
-var serverCert = func(host, port string) (*x509.Certificate, string, error) {
+var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
 		InsecureSkipVerify: SkipVerify,
 	})
 	if err != nil {
-		return &x509.Certificate{}, "", err
+		return []*x509.Certificate{&x509.Certificate{}}, "", err
 	}
 	defer conn.Close()
 	addr := conn.RemoteAddr()
 	ip, _, _ := net.SplitHostPort(addr.String())
-	cert := conn.ConnectionState().PeerCertificates[0]
+	cert := conn.ConnectionState().PeerCertificates
 
 	return cert, ip, nil
 }
@@ -122,10 +123,11 @@ func NewCert(hostport string) *Cert {
 	if err != nil {
 		return &Cert{DomainName: host, Error: err.Error()}
 	}
-	cert, ip, err := serverCert(host, port)
+	certChain, ip, err := serverCert(host, port)
 	if err != nil {
 		return &Cert{DomainName: host, Error: err.Error()}
 	}
+	cert := certChain[0]
 	return &Cert{
 		DomainName:  host,
 		IP:          ip,
@@ -136,6 +138,7 @@ func NewCert(hostport string) *Cert {
 		NotAfter:    cert.NotAfter.In(time.Local).String(),
 		Error:       "",
 		Certificate: cert,
+		CertChain:   certChain,
 	}
 }
 
