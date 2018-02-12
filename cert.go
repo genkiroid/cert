@@ -15,77 +15,9 @@ import (
 	"time"
 )
 
-const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
-IP:         {{.IP}}
-Issuer:     {{.Issuer}}
-NotBefore:  {{.NotBefore}}
-NotAfter:   {{.NotAfter}}
-CommonName: {{.CommonName}}
-SANs:       {{.SANs}}
-Error:      {{.Error}}
-
-{{end}}
-`
-
-const markdownTempl = `DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.IP}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
-{{end}}
-`
-
-const defaultPort = "443"
-
-type Certs []*Cert
-
-type Cert struct {
-	DomainName  string              `json:"domainName"`
-	IP          string              `json:"ip"`
-	Issuer      string              `json:"issuer"`
-	CommonName  string              `json:"commonName"`
-	SANs        []string            `json:"sans"`
-	NotBefore   string              `json:"notBefore"`
-	NotAfter    string              `json:"notAfter"`
-	Error       string              `json:"error"`
-	Certificate *x509.Certificate   `json:"-"`
-	CertChain   []*x509.Certificate `json:"-"`
-}
-
-var tokens = make(chan struct{}, 128)
-
 var SkipVerify = false
 
 var userTempl string
-
-var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
-	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
-		InsecureSkipVerify: SkipVerify,
-	})
-	if err != nil {
-		return []*x509.Certificate{&x509.Certificate{}}, "", err
-	}
-	defer conn.Close()
-	addr := conn.RemoteAddr()
-	ip, _, _ := net.SplitHostPort(addr.String())
-	cert := conn.ConnectionState().PeerCertificates
-
-	return cert, ip, nil
-}
-
-func SplitHostPort(hostport string) (string, string, error) {
-	host, port, err := net.SplitHostPort(hostport)
-	if err != nil {
-		var ae *net.AddrError
-		var ok bool
-		if ae, ok = err.(*net.AddrError); !ok {
-			return "", "", err
-		}
-		if strings.Contains(ae.Error(), "missing port in address") {
-			return hostport, defaultPort, nil
-		}
-		return "", "", err
-	}
-	return host, port, nil
-}
 
 func SetUserTempl(templ string) error {
 	if templ == "" {
@@ -111,11 +43,49 @@ func SetUserTempl(templ string) error {
 	return nil
 }
 
-func validate(s []string) error {
-	if len(s) < 1 {
-		return fmt.Errorf("Input at least one domain name.")
+const defaultPort = "443"
+
+func SplitHostPort(hostport string) (string, string, error) {
+	host, port, err := net.SplitHostPort(hostport)
+	if err != nil {
+		var ae *net.AddrError
+		var ok bool
+		if ae, ok = err.(*net.AddrError); !ok {
+			return "", "", err
+		}
+		if strings.Contains(ae.Error(), "missing port in address") {
+			return hostport, defaultPort, nil
+		}
+		return "", "", err
 	}
-	return nil
+	return host, port, nil
+}
+
+type Cert struct {
+	DomainName string   `json:"domainName"`
+	IP         string   `json:"ip"`
+	Issuer     string   `json:"issuer"`
+	CommonName string   `json:"commonName"`
+	SANs       []string `json:"sans"`
+	NotBefore  string   `json:"notBefore"`
+	NotAfter   string   `json:"notAfter"`
+	Error      string   `json:"error"`
+	certChain  []*x509.Certificate
+}
+
+var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
+	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
+		InsecureSkipVerify: SkipVerify,
+	})
+	if err != nil {
+		return []*x509.Certificate{&x509.Certificate{}}, "", err
+	}
+	defer conn.Close()
+	addr := conn.RemoteAddr()
+	ip, _, _ := net.SplitHostPort(addr.String())
+	cert := conn.ConnectionState().PeerCertificates
+
+	return cert, ip, nil
 }
 
 func NewCert(hostport string) *Cert {
@@ -129,17 +99,35 @@ func NewCert(hostport string) *Cert {
 	}
 	cert := certChain[0]
 	return &Cert{
-		DomainName:  host,
-		IP:          ip,
-		Issuer:      cert.Issuer.CommonName,
-		CommonName:  cert.Subject.CommonName,
-		SANs:        cert.DNSNames,
-		NotBefore:   cert.NotBefore.In(time.Local).String(),
-		NotAfter:    cert.NotAfter.In(time.Local).String(),
-		Error:       "",
-		Certificate: cert,
-		CertChain:   certChain,
+		DomainName: host,
+		IP:         ip,
+		Issuer:     cert.Issuer.CommonName,
+		CommonName: cert.Subject.CommonName,
+		SANs:       cert.DNSNames,
+		NotBefore:  cert.NotBefore.In(time.Local).String(),
+		NotAfter:   cert.NotAfter.In(time.Local).String(),
+		Error:      "",
+		certChain:  certChain,
 	}
+}
+
+func (c *Cert) Detail() *x509.Certificate {
+	return c.certChain[0]
+}
+
+func (c *Cert) CertChain() []*x509.Certificate {
+	return c.certChain
+}
+
+type Certs []*Cert
+
+var tokens = make(chan struct{}, 128)
+
+func validate(s []string) error {
+	if len(s) < 1 {
+		return fmt.Errorf("Input at least one domain name.")
+	}
+	return nil
 }
 
 func NewCerts(s []string) (Certs, error) {
@@ -169,6 +157,18 @@ func NewCerts(s []string) (Certs, error) {
 	return certs, nil
 }
 
+const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
+IP:         {{.IP}}
+Issuer:     {{.Issuer}}
+NotBefore:  {{.NotBefore}}
+NotAfter:   {{.NotAfter}}
+CommonName: {{.CommonName}}
+SANs:       {{.SANs}}
+Error:      {{.Error}}
+
+{{end}}
+`
+
 func (certs Certs) String() string {
 	var b bytes.Buffer
 
@@ -182,6 +182,21 @@ func (certs Certs) String() string {
 		panic(err)
 	}
 	return b.String()
+}
+
+const markdownTempl = `DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | ---
+{{range .}}{{.DomainName}} | {{.IP}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
+{{end}}
+`
+
+func (certs Certs) escapeStar() Certs {
+	for _, cert := range certs {
+		for i, san := range cert.SANs {
+			cert.SANs[i] = strings.Replace(san, "*", "\\*", -1)
+		}
+	}
+	return certs
 }
 
 func (certs Certs) Markdown() string {
@@ -199,13 +214,4 @@ func (certs Certs) JSON() []byte {
 		panic(err)
 	}
 	return data
-}
-
-func (certs Certs) escapeStar() Certs {
-	for _, cert := range certs {
-		for i, san := range cert.SANs {
-			cert.SANs[i] = strings.Replace(san, "*", "\\*", -1)
-		}
-	}
-	return certs
 }
