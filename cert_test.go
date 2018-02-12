@@ -22,6 +22,17 @@ func stubCert() {
 				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
 				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
 			},
+			&x509.Certificate{
+				Issuer: pkix.Name{
+					CommonName: "parent of CA for test",
+				},
+				Subject: pkix.Name{
+					CommonName: host,
+				},
+				DNSNames:  []string{host, "www." + host},
+				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
+				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+			},
 		}, "127.0.0.1", nil
 	}
 }
@@ -219,5 +230,50 @@ func TestSetUserTempl(t *testing.T) {
 
 	if certs.String() != expected {
 		t.Errorf(`unexpected return value %q, want %q`, certs.String(), expected)
+	}
+}
+
+func TestDetail(t *testing.T) {
+	stubCert()
+
+	input := "example.com"
+
+	c := NewCert(input)
+	certChain, _, _ := serverCert(input, defaultPort)
+	origCert := certChain[0]
+	detail := c.Detail()
+
+	if _, ok := interface{}(detail).(*x509.Certificate); !ok {
+		t.Errorf(`Cert.Detail() was not returned *x509.Certificate`)
+	}
+
+	if detail.Issuer.CommonName != origCert.Issuer.CommonName {
+		t.Errorf(`unexpected issuer common name %q, want %q`, detail.Issuer.CommonName, origCert.Issuer.CommonName)
+	}
+}
+
+func TestCertChain(t *testing.T) {
+	stubCert()
+
+	input := "example.com"
+
+	c := NewCert(input)
+	expectedChain, _, _ := serverCert(input, defaultPort)
+	certChain := c.CertChain()
+
+	if _, ok := interface{}(certChain).([]*x509.Certificate); !ok {
+		t.Errorf(`Cert.CertChain() was not returned []*x509.Certificate`)
+	}
+
+	if len(expectedChain) != len(certChain) {
+		t.Errorf(`unexpected length %q, want %q`, len(certChain), len(expectedChain))
+	}
+
+	if certChain[0].Issuer.CommonName != "CA for test" {
+		t.Errorf(`unexpected issuer common name %q, want %q`, certChain[0].Issuer.CommonName, "CA for test")
+	}
+
+	if certChain[1].Issuer.CommonName != "parent of CA for test" {
+		t.Errorf(`unexpected issuer common name %q, want %q`, certChain[1].Issuer.CommonName, "parent of CA for test")
 	}
 }
