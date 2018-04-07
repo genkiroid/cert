@@ -141,8 +141,7 @@ func NewCerts(s []string) (Certs, error) {
 		cert  *Cert
 	}
 
-	certs := make(Certs, len(s))
-	ch := make(chan *indexer, len(s))
+	ch := make(chan *indexer)
 	for i, d := range s {
 		go func(i int, d string) {
 			tokens <- struct{}{}
@@ -151,6 +150,7 @@ func NewCerts(s []string) (Certs, error) {
 		}(i, d)
 	}
 
+	certs := make(Certs, len(s))
 	for range s {
 		i := <-ch
 		certs[i.index] = i.cert
