@@ -55,24 +55,30 @@ func TestSplitHostPort(t *testing.T) {
 	type want struct {
 		host string
 		port string
-		err  error
+		err  string
 	}
 	var tests = []struct {
 		input string
 		want  want
 	}{
-		{"example.com", want{"example.com", defaultPort, nil}},
-		{"example.com:443", want{"example.com", "443", nil}},
-		{"imap.example.com:993", want{"imap.example.com", "993", nil}},
-		{"smtp.example.com:465", want{"smtp.example.com", "465", nil}},
+		{"example.com", want{"example.com", defaultPort, ""}},
+		{"example.com:443", want{"example.com", "443", ""}},
+		{"imap.example.com:993", want{"imap.example.com", "993", ""}},
+		{"smtp.example.com:465", want{"smtp.example.com", "465", ""}},
+		{"example.com:", want{"example.com", defaultPort, ""}},
+		{"example.com::", want{"", "", "address example.com::: too many colons in address"}},
 	}
 
 	for _, test := range tests {
 		host, port, err := SplitHostPort(test.input)
+		errMsg := ""
+		if err != nil {
+			errMsg = err.Error()
+		}
 		got := want{
 			host,
 			port,
-			err,
+			errMsg,
 		}
 		if got != test.want {
 			t.Errorf("SplitHostPort(%q) = %v, want %v", test.input, got, test.want)

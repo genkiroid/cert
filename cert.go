@@ -46,18 +46,19 @@ func SetUserTempl(templ string) error {
 const defaultPort = "443"
 
 func SplitHostPort(hostport string) (string, string, error) {
+	if !strings.Contains(hostport, ":") {
+		return hostport, defaultPort, nil
+	}
+
 	host, port, err := net.SplitHostPort(hostport)
 	if err != nil {
-		var ae *net.AddrError
-		var ok bool
-		if ae, ok = err.(*net.AddrError); !ok {
-			return "", "", err
-		}
-		if strings.Contains(ae.Error(), "missing port in address") {
-			return hostport, defaultPort, nil
-		}
 		return "", "", err
 	}
+
+	if port == "" {
+		port = defaultPort
+	}
+
 	return host, port, nil
 }
 
