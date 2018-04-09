@@ -11,16 +11,19 @@ import (
 var version = ""
 
 func main() {
-	var skipVerify bool
 	var format string
-	var showVersion bool
 	var template string
+	var skipVerify bool
+	var showVersion bool
 
-	flag.BoolVar(&skipVerify, "k", false, "Skip verification of server's certificate chain and host name.")
 	flag.StringVar(&format, "f", "simple table", "Output format. md: as markdown, json: as JSON. ")
+	flag.StringVar(&format, "format", "simple table", "Output format. md: as markdown, json: as JSON. ")
+	flag.StringVar(&template, "t", "", "Output format as Go template string or Go template file path.")
+	flag.StringVar(&template, "template", "", "Output format as Go template string or Go template file path.")
+	flag.BoolVar(&skipVerify, "k", false, "Skip verification of server's certificate chain and host name.")
+	flag.BoolVar(&skipVerify, "skip-verify", false, "Skip verification of server's certificate chain and host name.")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
-	flag.StringVar(&template, "t", "", "Output format as Go template string or Go template file path.")
 	flag.Parse()
 
 	if showVersion {

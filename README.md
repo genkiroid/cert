@@ -85,12 +85,18 @@ Error:
 ## Options
 
 ```sh
-$ cert -h
+$ cert --help
 Usage of cert:
   -f string
         Output format. md: as markdown, json: as JSON.  (default "simple table")
+  -format string
+        Output format. md: as markdown, json: as JSON.  (default "simple table")
   -k    Skip verification of server's certificate chain and host name.
+  -skip-verify
+        Skip verification of server's certificate chain and host name.
   -t string
+        Output format as Go template string or Go template file path.
+  -template string
         Output format as Go template string or Go template file path.
   -v    Show version.
   -version
