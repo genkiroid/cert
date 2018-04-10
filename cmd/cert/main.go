@@ -31,12 +31,12 @@ func main() {
 		return
 	}
 
-	var c cert.Certs
+	var certs cert.Certs
 	var err error
 
 	cert.SkipVerify = skipVerify
 
-	c, err = cert.NewCerts(flag.Args())
+	certs, err = cert.NewCerts(flag.Args())
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
@@ -45,11 +45,11 @@ func main() {
 	if template == "" {
 		switch format {
 		case "md":
-			fmt.Printf("%s", c.Markdown())
+			fmt.Printf("%s", certs.Markdown())
 		case "json":
-			fmt.Printf("%s", c.JSON())
+			fmt.Printf("%s", certs.JSON())
 		default:
-			fmt.Printf("%s", c)
+			fmt.Printf("%s", certs)
 		}
 		return
 	}
@@ -59,5 +59,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%s", c)
+	fmt.Printf("%s", certs)
 }
