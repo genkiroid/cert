@@ -17,6 +17,8 @@ import (
 
 var SkipVerify = false
 
+var UTC = false
+
 var userTempl string
 
 func SetUserTempl(templ string) error {
@@ -99,14 +101,21 @@ func NewCert(hostport string) *Cert {
 		return &Cert{DomainName: host, Error: err.Error()}
 	}
 	cert := certChain[0]
+
+	var loc *time.Location
+	loc = time.Local
+	if UTC {
+		loc = time.UTC
+	}
+
 	return &Cert{
 		DomainName: host,
 		IP:         ip,
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
-		NotBefore:  cert.NotBefore.In(time.Local).String(),
-		NotAfter:   cert.NotAfter.In(time.Local).String(),
+		NotBefore:  cert.NotBefore.In(loc).String(),
+		NotAfter:   cert.NotAfter.In(loc).String(),
 		Error:      "",
 		certChain:  certChain,
 	}

@@ -14,6 +14,7 @@ func main() {
 	var format string
 	var template string
 	var skipVerify bool
+	var utc bool
 	var showVersion bool
 
 	flag.StringVar(&format, "f", "simple table", "Output format. md: as markdown, json: as JSON. ")
@@ -22,6 +23,8 @@ func main() {
 	flag.StringVar(&template, "template", "", "Output format as Go template string or Go template file path.")
 	flag.BoolVar(&skipVerify, "k", false, "Skip verification of server's certificate chain and host name.")
 	flag.BoolVar(&skipVerify, "skip-verify", false, "Skip verification of server's certificate chain and host name.")
+	flag.BoolVar(&utc, "u", false, "Set UTC to timezone.")
+	flag.BoolVar(&utc, "utc", false, "Set UTC to timezone.")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
 	flag.Parse()
@@ -35,6 +38,7 @@ func main() {
 	var err error
 
 	cert.SkipVerify = skipVerify
+	cert.UTC = utc
 
 	certs, err = cert.NewCerts(flag.Args())
 	if err != nil {
