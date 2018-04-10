@@ -237,6 +237,8 @@ func TestSetUserTempl(t *testing.T) {
 	if certs.String() != expected {
 		t.Errorf(`unexpected return value %q, want %q`, certs.String(), expected)
 	}
+
+	userTempl = ""
 }
 
 func TestDetail(t *testing.T) {
