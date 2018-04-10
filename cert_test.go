@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+func enableUTC() {
+	UTC = true
+}
+
+func disableUTC() {
+	UTC = false
+}
+
 func stubCert() {
 	serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 		return []*x509.Certificate{
@@ -19,8 +27,8 @@ func stubCert() {
 					CommonName: host,
 				},
 				DNSNames:  []string{host, "www." + host},
-				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
-				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
+				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
 			},
 			&x509.Certificate{
 				Issuer: pkix.Name{
@@ -30,8 +38,8 @@ func stubCert() {
 					CommonName: host,
 				},
 				DNSNames:  []string{host, "www." + host},
-				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
-				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
+				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
 			},
 		}, "127.0.0.1", nil
 	}
@@ -87,6 +95,9 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestNewCert(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	input := "example.com"
@@ -131,6 +142,9 @@ func TestNewCert(t *testing.T) {
 }
 
 func TestNewCerts(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	input := []string{"example.com"}
@@ -143,6 +157,9 @@ func TestNewCerts(t *testing.T) {
 }
 
 func TestCertsAsString(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	certChain, _, _ := serverCert("example.com", defaultPort)
@@ -168,6 +185,9 @@ Error:
 }
 
 func TestCertsAsMarkdown(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	certChain, _, _ := serverCert("example.com", defaultPort)
@@ -187,6 +207,9 @@ example.com | 127.0.0.1 | CA for test | %s | %s | example.com | example.com<br/>
 }
 
 func TestCertsAsJSON(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	certChain, _, _ := serverCert("example.com", defaultPort)
@@ -212,8 +235,8 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 					CommonName: host,
 				},
 				DNSNames:  []string{host, "*." + host}, // include star
-				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.Local),
-				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.Local),
+				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
+				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
 			},
 		}, "127.0.0.1", nil
 	}
@@ -228,6 +251,9 @@ func TestCertsEscapeStarInSANs(t *testing.T) {
 }
 
 func TestSetUserTempl(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 	_ = SetUserTempl("{{range .}}Issuer: {{.Issuer}}{{end}}")
 	expected := "Issuer: CA for test"
@@ -242,6 +268,9 @@ func TestSetUserTempl(t *testing.T) {
 }
 
 func TestDetail(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	input := "example.com"
@@ -261,6 +290,9 @@ func TestDetail(t *testing.T) {
 }
 
 func TestCertChain(t *testing.T) {
+	enableUTC()
+	defer disableUTC()
+
 	stubCert()
 
 	input := "example.com"
