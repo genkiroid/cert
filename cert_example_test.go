@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ExampleDefaultFormat() {
+func ExampleCerts_String() {
 	UTC = true
 	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
@@ -21,7 +21,7 @@ func ExampleDefaultFormat() {
 	// Error:
 }
 
-func ExampleMarkDownFormat() {
+func ExampleCerts_Markdown() {
 	UTC = true
 	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
@@ -33,7 +33,7 @@ func ExampleMarkDownFormat() {
 	// example.com | 127.0.0.1 | CA for test | 2016-12-31 15:00:00 +0000 UTC | 2017-12-31 15:00:00 +0000 UTC | example.com | example.com<br/>www.example.com<br/> |
 }
 
-func ExampleJSONFormat() {
+func ExampleCerts_JSON() {
 	UTC = true
 	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
