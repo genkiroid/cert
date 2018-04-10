@@ -98,6 +98,9 @@ Usage of cert:
         Output format as Go template string or Go template file path.
   -template string
         Output format as Go template string or Go template file path.
+  -u    Use UTC to represent NotBefore and NotAfter.
+  -utc
+        Use UTC to represent NotBefore and NotAfter.
   -v    Show version.
   -version
         Show version.
