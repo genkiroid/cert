@@ -218,10 +218,10 @@ func (certs Certs) Markdown() string {
 	return b.String()
 }
 
-func (certs Certs) JSON() []byte {
+func (certs Certs) JSON() string {
 	data, err := json.Marshal(certs)
 	if err != nil {
 		panic(err)
 	}
-	return data
+	return string(data)
 }
