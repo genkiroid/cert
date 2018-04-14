@@ -5,10 +5,6 @@ import (
 )
 
 func ExampleCerts_String() {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
 
 	fmt.Printf("%s", certs)
@@ -24,10 +20,6 @@ func ExampleCerts_String() {
 }
 
 func ExampleCerts_Markdown() {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
 
 	fmt.Printf("%s", certs.Markdown())
@@ -38,10 +30,6 @@ func ExampleCerts_Markdown() {
 }
 
 func ExampleCerts_JSON() {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
 	certs, _ := NewCerts([]string{"example.com"})
 
 	fmt.Printf("%s", certs.JSON())

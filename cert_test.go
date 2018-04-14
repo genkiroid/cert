@@ -4,17 +4,10 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
-
-func enableUTC() {
-	UTC = true
-}
-
-func disableUTC() {
-	UTC = false
-}
 
 func stubCert() {
 	serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
@@ -37,12 +30,17 @@ func stubCert() {
 				Subject: pkix.Name{
 					CommonName: host,
 				},
-				DNSNames:  []string{host, "www." + host},
+				DNSNames:  []string{host, "*." + host},
 				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
 				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
 			},
 		}, "127.0.0.1", nil
 	}
+}
+
+func setup() {
+	UTC = true
+	stubCert()
 }
 
 func TestValidate(t *testing.T) {
@@ -95,11 +93,6 @@ func TestSplitHostPort(t *testing.T) {
 }
 
 func TestNewCert(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	input := "example.com"
 
 	c := NewCert(input)
@@ -142,11 +135,6 @@ func TestNewCert(t *testing.T) {
 }
 
 func TestNewCerts(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	input := []string{"example.com"}
 
 	certs, _ := NewCerts(input)
@@ -157,11 +145,6 @@ func TestNewCerts(t *testing.T) {
 }
 
 func TestCertsAsString(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	certChain, _, _ := serverCert("example.com", defaultPort)
 	origCert := certChain[0]
 
@@ -185,11 +168,6 @@ Error:
 }
 
 func TestCertsAsMarkdown(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	certChain, _, _ := serverCert("example.com", defaultPort)
 	origCert := certChain[0]
 
@@ -207,11 +185,6 @@ example.com | 127.0.0.1 | CA for test | %s | %s | example.com | example.com<br/>
 }
 
 func TestCertsAsJSON(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	certChain, _, _ := serverCert("example.com", defaultPort)
 	origCert := certChain[0]
 
@@ -225,36 +198,20 @@ func TestCertsAsJSON(t *testing.T) {
 }
 
 func TestCertsEscapeStarInSANs(t *testing.T) {
-	serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
-		return []*x509.Certificate{
-			&x509.Certificate{
-				Issuer: pkix.Name{
-					CommonName: "CA for test",
-				},
-				Subject: pkix.Name{
-					CommonName: host,
-				},
-				DNSNames:  []string{host, "*." + host}, // include star
-				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
-				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
-			},
-		}, "127.0.0.1", nil
+	certs := Certs{
+		&Cert{
+			SANs: []string{"*.example.com"},
+		},
 	}
-
-	certs, _ := NewCerts([]string{"example.com"})
 
 	certs = certs.escapeStar()
 
-	if certs[0].SANs[1] != "\\*.example.com" {
-		t.Errorf(`unexpected escaped value %q, want %q`, certs[0].SANs[1], "\\*.example.com")
+	if certs[0].SANs[0] != "\\*.example.com" {
+		t.Errorf(`unexpected escaped value %q, want %q`, certs[0].SANs[0], "\\*.example.com")
 	}
 }
 
 func TestSetUserTempl(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
 	_ = SetUserTempl("{{range .}}Issuer: {{.Issuer}}{{end}}")
 	expected := "Issuer: CA for test"
 
@@ -268,11 +225,6 @@ func TestSetUserTempl(t *testing.T) {
 }
 
 func TestDetail(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	input := "example.com"
 
 	c := NewCert(input)
@@ -290,11 +242,6 @@ func TestDetail(t *testing.T) {
 }
 
 func TestCertChain(t *testing.T) {
-	enableUTC()
-	defer disableUTC()
-
-	stubCert()
-
 	input := "example.com"
 
 	c := NewCert(input)
@@ -316,4 +263,9 @@ func TestCertChain(t *testing.T) {
 	if certChain[1].Issuer.CommonName != "parent of CA for test" {
 		t.Errorf(`unexpected issuer common name %q, want %q`, certChain[1].Issuer.CommonName, "parent of CA for test")
 	}
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	os.Exit(m.Run())
 }
