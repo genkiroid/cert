@@ -15,6 +15,7 @@ func main() {
 	var template string
 	var skipVerify bool
 	var utc bool
+	var timeout int
 	var showVersion bool
 
 	flag.StringVar(&format, "f", "simple table", "Output format. md: as markdown, json: as JSON. ")
@@ -25,6 +26,8 @@ func main() {
 	flag.BoolVar(&skipVerify, "skip-verify", false, "Skip verification of server's certificate chain and host name.")
 	flag.BoolVar(&utc, "u", false, "Use UTC to represent NotBefore and NotAfter.")
 	flag.BoolVar(&utc, "utc", false, "Use UTC to represent NotBefore and NotAfter.")
+	flag.IntVar(&timeout, "s", 3, "Timeout seconds.")
+	flag.IntVar(&timeout, "timeout", 3, "Timeout seconds.")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
 	flag.Parse()
@@ -39,6 +42,7 @@ func main() {
 
 	cert.SkipVerify = skipVerify
 	cert.UTC = utc
+	cert.TimeoutSeconds = timeout
 
 	certs, err = cert.NewCerts(flag.Args())
 	if err != nil {

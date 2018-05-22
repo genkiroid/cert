@@ -21,6 +21,8 @@ var UTC = false
 
 var userTempl string
 
+var TimeoutSeconds = 3
+
 func SetUserTempl(templ string) error {
 	if templ == "" {
 		return nil
@@ -77,13 +79,17 @@ type Cert struct {
 }
 
 var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
-	conn, err := tls.Dial("tcp", host+":"+port, &tls.Config{
+	d := &net.Dialer{
+		Timeout: time.Duration(TimeoutSeconds) * time.Second,
+	}
+	conn, err := tls.DialWithDialer(d, "tcp", host+":"+port, &tls.Config{
 		InsecureSkipVerify: SkipVerify,
 	})
 	if err != nil {
 		return []*x509.Certificate{&x509.Certificate{}}, "", err
 	}
 	defer conn.Close()
+
 	addr := conn.RemoteAddr()
 	ip, _, _ := net.SplitHostPort(addr.String())
 	cert := conn.ConnectionState().PeerCertificates
