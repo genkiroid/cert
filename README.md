@@ -92,12 +92,16 @@ Usage of cert:
   -format string
         Output format. md: as markdown, json: as JSON.  (default "simple table")
   -k    Skip verification of server's certificate chain and host name.
+  -s int
+        Timeout seconds. (default 3)
   -skip-verify
         Skip verification of server's certificate chain and host name.
   -t string
         Output format as Go template string or Go template file path.
   -template string
         Output format as Go template string or Go template file path.
+  -timeout int
+        Timeout seconds. (default 3)
   -u    Use UTC to represent NotBefore and NotAfter.
   -utc
         Use UTC to represent NotBefore and NotAfter.
