@@ -265,6 +265,22 @@ func TestCertChain(t *testing.T) {
 	}
 }
 
+func TestCipherSuite(t *testing.T) {
+	CipherSuite = "TLS_CHACHA20_POLY1305_SHA256"
+	if _, err := cipherSuite(); err != nil {
+		t.Errorf(`unexpected err %s, want nil`, err.Error())
+	}
+}
+
+func TestCipherSuiteError(t *testing.T) {
+	CipherSuite = "UNSUPPORTED_CIPHER_SUITE"
+	if _, err := cipherSuite(); err == nil {
+		t.Error(`unexpected nil, want error`)
+	} else if err.Error() != "UNSUPPORTED_CIPHER_SUITE is unsupported cipher suite." {
+		t.Errorf(`unexpected err message, want %q`, "UNSUPPORTED_CIPHER_SUITE is unsupported cipher suite.")
+	}
+}
+
 func TestMain(m *testing.M) {
 	setup()
 	os.Exit(m.Run())

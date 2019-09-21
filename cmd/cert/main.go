@@ -17,6 +17,7 @@ func main() {
 	var utc bool
 	var timeout int
 	var showVersion bool
+	var cipherSuite string
 
 	flag.StringVar(&format, "f", "simple table", "Output format. md: as markdown, json: as JSON. ")
 	flag.StringVar(&format, "format", "simple table", "Output format. md: as markdown, json: as JSON. ")
@@ -30,6 +31,8 @@ func main() {
 	flag.IntVar(&timeout, "timeout", 3, "Timeout seconds.")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
+	flag.StringVar(&cipherSuite, "c", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher cuites.")
+	flag.StringVar(&cipherSuite, "cipher", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher cuites.")
 	flag.Parse()
 
 	if showVersion {
@@ -43,6 +46,7 @@ func main() {
 	cert.SkipVerify = skipVerify
 	cert.UTC = utc
 	cert.TimeoutSeconds = timeout
+	cert.CipherSuite = cipherSuite
 
 	certs, err = cert.NewCerts(flag.Args())
 	if err != nil {
