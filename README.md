@@ -87,6 +87,10 @@ Error:
 ```sh
 $ cert --help
 Usage of cert:
+  -c string
+        Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher suites.
+  -cipher string
+        Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher suites.
   -f string
         Output format. md: as markdown, json: as JSON.  (default "simple table")
   -format string
@@ -169,6 +173,40 @@ $
 $ cert -t /tmp/cert_templ github.com
 Issuer: DigiCert SHA2 Extended Validation Server CA
 Issuer: DigiCert High Assurance EV Root CA
+
+```
+
+### Specify cipher suite
+
+see https://github.com/genkiroid/cert/issues/13
+
+You can specify cipher suite.
+As a result, you can get the information of each certificate.
+
+Note that the issuers are different in the following example.
+
+```sh
+# Get information of the certificate using RSA public key algorithm.
+$ cert -cipher TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
+DomainName: cloudflaressl.com
+IP:         104.20.47.142
+Issuer:     COMODO RSA Domain Validation Secure Server CA 2
+NotBefore:  2019-08-23 09:00:00 +0900 JST
+NotAfter:   2020-03-01 08:59:59 +0900 JST
+CommonName: ssl509631.cloudflaressl.com
+SANs:       [ssl509631.cloudflaressl.com *.cloudflaressl.com cloudflaressl.com]
+Error:
+
+# Get information of the certificate using ECDSA public key algorithm.
+$ cert -cipher TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
+DomainName: cloudflaressl.com
+IP:         104.20.48.142
+Issuer:     COMODO ECC Domain Validation Secure Server CA 2
+NotBefore:  2019-08-23 09:00:00 +0900 JST
+NotAfter:   2020-03-01 08:59:59 +0900 JST
+CommonName: ssl509632.cloudflaressl.com
+SANs:       [ssl509632.cloudflaressl.com *.cloudflaressl.com cloudflaressl.com]
+Error:
 
 ```
 
