@@ -155,7 +155,7 @@ Use `cert -t`.
 By direct string.
 
 ```sh
-$ cert -t '{{range .}}{{.Issuer}}{{end}}' github.com
+$ cert -t "{{range .}}{{.Issuer}}{{end}}" github.com
 DigiCert SHA2 Extended Validation Server CA
 ```
 
