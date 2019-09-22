@@ -31,8 +31,8 @@ func main() {
 	flag.IntVar(&timeout, "timeout", 3, "Timeout seconds.")
 	flag.BoolVar(&showVersion, "v", false, "Show version.")
 	flag.BoolVar(&showVersion, "version", false, "Show version.")
-	flag.StringVar(&cipherSuite, "c", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher cuites.")
-	flag.StringVar(&cipherSuite, "cipher", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher cuites.")
+	flag.StringVar(&cipherSuite, "c", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher suites.")
+	flag.StringVar(&cipherSuite, "cipher", "", "Specify cipher suite. Refer to https://golang.org/pkg/crypto/tls/#pkg-constants for supported cipher suites.")
 	flag.Parse()
 
 	if showVersion {
