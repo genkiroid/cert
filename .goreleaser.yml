@@ -1,5 +1,7 @@
 builds:
-  - main: ./cmd/cert/main.go
+  -
+    id: cert
+    main: ./cmd/cert/main.go
     binary: cert
     goos:
       - windows
@@ -10,9 +12,9 @@ builds:
       - 386
 archives:
   -
-    id: my-archive
+    id: cert
     builds:
-    - default
+    - cert
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     files:
       - README.md
