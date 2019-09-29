@@ -44,9 +44,6 @@ var cipherSuites = map[string]uint16{
 	"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384": tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 	"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305":    tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
 	"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305":  tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-	"TLS_AES_128_GCM_SHA256":                  tls.TLS_AES_128_GCM_SHA256,
-	"TLS_AES_256_GCM_SHA384":                  tls.TLS_AES_256_GCM_SHA384,
-	"TLS_CHACHA20_POLY1305_SHA256":            tls.TLS_CHACHA20_POLY1305_SHA256,
 }
 
 var userTempl string
@@ -116,9 +113,17 @@ func cipherSuite() ([]uint16, error) {
 	var cs []uint16
 	cs = []uint16{cipherSuites[CipherSuite]}
 	if cs[0] == 0 {
-		return nil, fmt.Errorf("%s is unsupported cipher suite.", CipherSuite)
+		return nil, fmt.Errorf("%s is unsupported cipher suite or tls1.3 cipher suite.", CipherSuite)
 	}
 	return cs, nil
+}
+
+func tlsVersion() uint16 {
+	if CipherSuite != "" {
+		return tls.VersionTLS12
+	}
+	// Currently TLS 1.3
+	return 0
 }
 
 var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
@@ -134,6 +139,7 @@ var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 	conn, err := tls.DialWithDialer(d, "tcp", host+":"+port, &tls.Config{
 		InsecureSkipVerify: SkipVerify,
 		CipherSuites:       cs,
+		MaxVersion:         tlsVersion(),
 	})
 	if err != nil {
 		return []*x509.Certificate{&x509.Certificate{}}, "", err
