@@ -1,6 +1,7 @@
 package cert
 
 import (
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
@@ -266,7 +267,7 @@ func TestCertChain(t *testing.T) {
 }
 
 func TestCipherSuite(t *testing.T) {
-	CipherSuite = "TLS_CHACHA20_POLY1305_SHA256"
+	CipherSuite = "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
 	if _, err := cipherSuite(); err != nil {
 		t.Errorf(`unexpected err %s, want nil`, err.Error())
 	}
@@ -274,10 +275,34 @@ func TestCipherSuite(t *testing.T) {
 
 func TestCipherSuiteError(t *testing.T) {
 	CipherSuite = "UNSUPPORTED_CIPHER_SUITE"
+	want := "UNSUPPORTED_CIPHER_SUITE is unsupported cipher suite or tls1.3 cipher suite."
+
 	if _, err := cipherSuite(); err == nil {
 		t.Error(`unexpected nil, want error`)
-	} else if err.Error() != "UNSUPPORTED_CIPHER_SUITE is unsupported cipher suite." {
-		t.Errorf(`unexpected err message, want %q`, "UNSUPPORTED_CIPHER_SUITE is unsupported cipher suite.")
+	} else if err.Error() != want {
+		t.Errorf(`unexpected err message, want %q`, want)
+	}
+}
+
+func TestTlsVersion(t *testing.T) {
+	type want struct {
+		version uint16
+	}
+	var tests = []struct {
+		cipherSuite string
+		want        want
+	}{
+		{"", want{0}}, // 0 means TLS1.3 currently
+		{"TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305", want{tls.VersionTLS12}},
+	}
+
+	for _, test := range tests {
+		CipherSuite = test.cipherSuite
+		v := tlsVersion()
+		got := want{v}
+		if got != test.want {
+			t.Errorf("tlsVersion() = %v, want %v", got, test.want)
+		}
 	}
 }
 
