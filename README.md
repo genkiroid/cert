@@ -210,7 +210,7 @@ Error:
 
 ```
 
-**If you specify a cipher suite, the maximum TLS version used is limited to TLS1.2. This is because if the server supports TLS1.3, the specified cipher suite is ignored and communication is performed using TLS1.3. This eliminates the meaning of specifying a cipher suite and confuses us. This specification will change when the cipher suite for tls1.3 becomes configurable in Go.**
+**If you specify a cipher suite, the maximum TLS version used is limited to TLS1.2. This is because if the server supports TLS1.3, the specified cipher suite is ignored and communication is performed using TLS1.3. This eliminates the meaning of specifying a cipher suite and confuses us. This specification will change when the cipher suite for Tls1.3 becomes configurable in Go.**
 
 ## License
 
