@@ -186,7 +186,7 @@ As a result, you can get the information of each certificate.
 Note that the issuers are different in the following example.
 
 ```sh
-# Get information of the certificate using RSA public key algorithm.
+# Get information of the certificate using RSA signature/public key algorithm.
 $ cert -cipher TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
 DomainName: cloudflaressl.com
 IP:         104.20.47.142
@@ -197,7 +197,7 @@ CommonName: ssl509631.cloudflaressl.com
 SANs:       [ssl509631.cloudflaressl.com *.cloudflaressl.com cloudflaressl.com]
 Error:
 
-# Get information of the certificate using ECDSA public key algorithm.
+# Get information of the certificate using ECDSA signature/public key algorithm.
 $ cert -cipher TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
 DomainName: cloudflaressl.com
 IP:         104.20.48.142
