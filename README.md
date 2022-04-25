@@ -16,10 +16,10 @@ $ brew install cert
 
 For other platforms, Precompiled binaries for released versions are available in the [releases](https://github.com/genkiroid/cert/releases) page.
 
-Or `go get`.
+Or `go install`.
 
 ```sh
-$ go get github.com/genkiroid/cert/...
+$ go install github.com/genkiroid/cert/cmd/cert@latest
 ```
 
 ## Usage
