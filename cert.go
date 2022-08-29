@@ -96,6 +96,7 @@ func SplitHostPort(hostport string) (string, string, error) {
 type Cert struct {
 	DomainName string   `json:"domainName"`
 	IP         string   `json:"ip"`
+	Port       string   `json:"port"`
 	Issuer     string   `json:"issuer"`
 	CommonName string   `json:"commonName"`
 	SANs       []string `json:"sans"`
@@ -173,6 +174,7 @@ func NewCert(hostport string) *Cert {
 	return &Cert{
 		DomainName: host,
 		IP:         ip,
+		Port:       port,
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
