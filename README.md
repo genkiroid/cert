@@ -214,7 +214,7 @@ Error:
 
 ## License
 
-[MIT](https://github.com/genkiroid/cert/blob/master/LICENSE)
+[MIT](https://github.com/genkiroid/cert/blob/main/LICENSE)
 
 ## Author
 
