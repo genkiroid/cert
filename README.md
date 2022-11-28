@@ -1,6 +1,6 @@
 # cert
 
-[![Build Status](https://travis-ci.org/genkiroid/cert.svg?branch=master)](https://travis-ci.org/genkiroid/cert)
+[![build](https://github.com/genkiroid/cert/actions/workflows/ci.yml/badge.svg)](https://github.com/genkiroid/cert/actions/workflows/ci.yml)
 
 Get server's certificate information.
 
@@ -219,4 +219,3 @@ Error:
 ## Author
 
 [genkiroid](https://github.com/genkiroid)
-
