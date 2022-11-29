@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -77,6 +78,14 @@ func SetUserTempl(templ string) error {
 const defaultPort = "443"
 
 func SplitHostPort(hostport string) (string, string, error) {
+	if strings.Contains(hostport, "://") {
+		u, err := url.Parse(hostport)
+		if err != nil {
+			return "", "", err
+		}
+		fmt.Printf("u.Host: %s\n", u.Host)
+		hostport = u.Host
+	}
 	if !strings.Contains(hostport, ":") {
 		return hostport, defaultPort, nil
 	}
