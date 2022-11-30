@@ -74,6 +74,8 @@ func TestSplitHostPort(t *testing.T) {
 		{"smtp.example.com:465", want{"smtp.example.com", "465", ""}},
 		{"example.com:", want{"example.com", defaultPort, ""}},
 		{"example.com::", want{"", "", "address example.com::: too many colons in address"}},
+		{"https://example.com", want{"example.com", defaultPort, ""}},
+		{"https://example.com/path/to", want{"example.com", defaultPort, ""}},
 	}
 
 	for _, test := range tests {
