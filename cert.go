@@ -83,7 +83,6 @@ func SplitHostPort(hostport string) (string, string, error) {
 		if err != nil {
 			return "", "", err
 		}
-		fmt.Printf("u.Host: %s\n", u.Host)
 		hostport = u.Host
 	}
 	if !strings.Contains(hostport, ":") {
