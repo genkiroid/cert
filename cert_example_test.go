@@ -11,6 +11,7 @@ func ExampleCerts_String() {
 	// Output:
 	// DomainName: example.com
 	// IP:         127.0.0.1
+	// Port:       443
 	// Issuer:     CA for test
 	// NotBefore:  2017-01-01 00:00:00 +0000 UTC
 	// NotAfter:   2018-01-01 00:00:00 +0000 UTC
@@ -24,9 +25,9 @@ func ExampleCerts_Markdown() {
 
 	fmt.Printf("%s", certs.Markdown())
 	// Output:
-	// DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
-	// --- | --- | --- | --- | --- | --- | --- | ---
-	// example.com | 127.0.0.1 | CA for test | 2017-01-01 00:00:00 +0000 UTC | 2018-01-01 00:00:00 +0000 UTC | example.com | example.com<br/>www.example.com<br/> |
+	// DomainName | IP | Port | Issuer | NotBefore | NotAfter | CN | SANs | Error
+	// --- | --- | --- | --- | --- | --- | --- | --- | ---
+	// example.com | 127.0.0.1 | 443 | CA for test | 2017-01-01 00:00:00 +0000 UTC | 2018-01-01 00:00:00 +0000 UTC | example.com | example.com<br/>www.example.com<br/> |
 }
 
 func ExampleCerts_JSON() {
@@ -34,5 +35,5 @@ func ExampleCerts_JSON() {
 
 	fmt.Printf("%s", certs.JSON())
 	// Output:
-	// [{"domainName":"example.com","ip":"127.0.0.1","issuer":"CA for test","commonName":"example.com","sans":["example.com","www.example.com"],"notBefore":"2017-01-01 00:00:00 +0000 UTC","notAfter":"2018-01-01 00:00:00 +0000 UTC","error":""}]
+	// [{"domainName":"example.com","ip":"127.0.0.1","port":"443","issuer":"CA for test","commonName":"example.com","sans":["example.com","www.example.com"],"notBefore":"2017-01-01 00:00:00 +0000 UTC","notAfter":"2018-01-01 00:00:00 +0000 UTC","error":""}]
 }

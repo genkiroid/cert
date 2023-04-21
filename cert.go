@@ -267,9 +267,9 @@ func (certs Certs) String() string {
 	return b.String()
 }
 
-const markdownTempl = `DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | --- | ---
-{{range .}}{{.DomainName}} | {{.IP}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
+const markdownTempl = `DomainName | IP | Port | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+{{range .}}{{.DomainName}} | {{.IP}} | {{.Port}} | {{.Issuer}} | {{.NotBefore}} | {{.NotAfter}} | {{.CommonName}} | {{range .SANs}}{{.}}<br/>{{end}} | {{.Error}}
 {{end}}
 `
 

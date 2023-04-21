@@ -153,6 +153,7 @@ func TestCertsAsString(t *testing.T) {
 
 	expected := fmt.Sprintf(`DomainName: example.com
 IP:         127.0.0.1
+Port:       443
 Issuer:     CA for test
 NotBefore:  %s
 NotAfter:   %s
@@ -174,9 +175,9 @@ func TestCertsAsMarkdown(t *testing.T) {
 	certChain, _, _ := serverCert("example.com", defaultPort)
 	origCert := certChain[0]
 
-	expected := fmt.Sprintf(`DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | --- | ---
-example.com | 127.0.0.1 | CA for test | %s | %s | example.com | example.com<br/>www.example.com<br/> | 
+	expected := fmt.Sprintf(`DomainName | IP | Port | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+example.com | 127.0.0.1 | 443 | CA for test | %s | %s | example.com | example.com<br/>www.example.com<br/> | 
 
 `, origCert.NotBefore.String(), origCert.NotAfter.String())
 
@@ -191,7 +192,7 @@ func TestCertsAsJSON(t *testing.T) {
 	certChain, _, _ := serverCert("example.com", defaultPort)
 	origCert := certChain[0]
 
-	expected := fmt.Sprintf("[{\"domainName\":\"example.com\",\"ip\":\"127.0.0.1\",\"issuer\":\"CA for test\",\"commonName\":\"example.com\",\"sans\":[\"example.com\",\"www.example.com\"],\"notBefore\":%q,\"notAfter\":%q,\"error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
+	expected := fmt.Sprintf("[{\"domainName\":\"example.com\",\"ip\":\"127.0.0.1\",\"port\":\"443\",\"issuer\":\"CA for test\",\"commonName\":\"example.com\",\"sans\":[\"example.com\",\"www.example.com\"],\"notBefore\":%q,\"notAfter\":%q,\"error\":\"\"}]", origCert.NotBefore.String(), origCert.NotAfter.String())
 
 	certs, _ := NewCerts([]string{"example.com"})
 
