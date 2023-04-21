@@ -104,6 +104,7 @@ func SplitHostPort(hostport string) (string, string, error) {
 type Cert struct {
 	DomainName string   `json:"domainName"`
 	IP         string   `json:"ip"`
+	Port       string   `json:"port"`
 	Issuer     string   `json:"issuer"`
 	CommonName string   `json:"commonName"`
 	SANs       []string `json:"sans"`
@@ -141,7 +142,7 @@ var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 
 	cs, err := cipherSuite()
 	if err != nil {
-		return []*x509.Certificate{&x509.Certificate{}}, "", err
+		return []*x509.Certificate{{}}, "", err
 	}
 
 	conn, err := tls.DialWithDialer(d, "tcp", host+":"+port, &tls.Config{
@@ -150,7 +151,7 @@ var serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 		MaxVersion:         tlsVersion(),
 	})
 	if err != nil {
-		return []*x509.Certificate{&x509.Certificate{}}, "", err
+		return []*x509.Certificate{{}}, "", err
 	}
 	defer conn.Close()
 
@@ -181,6 +182,7 @@ func NewCert(hostport string) *Cert {
 	return &Cert{
 		DomainName: host,
 		IP:         ip,
+		Port:       port,
 		Issuer:     cert.Issuer.CommonName,
 		CommonName: cert.Subject.CommonName,
 		SANs:       cert.DNSNames,
@@ -239,6 +241,7 @@ func NewCerts(s []string) (Certs, error) {
 
 const defaultTempl = `{{range .}}DomainName: {{.DomainName}}
 IP:         {{.IP}}
+Port:       {{.Port}}
 Issuer:     {{.Issuer}}
 NotBefore:  {{.NotBefore}}
 NotAfter:   {{.NotAfter}}

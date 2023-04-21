@@ -13,7 +13,7 @@ import (
 func stubCert() {
 	serverCert = func(host, port string) ([]*x509.Certificate, string, error) {
 		return []*x509.Certificate{
-			&x509.Certificate{
+			{
 				Issuer: pkix.Name{
 					CommonName: "CA for test",
 				},
@@ -24,7 +24,7 @@ func stubCert() {
 				NotBefore: time.Date(2017, time.January, 1, 0, 0, 0, 0, time.UTC),
 				NotAfter:  time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC),
 			},
-			&x509.Certificate{
+			{
 				Issuer: pkix.Name{
 					CommonName: "parent of CA for test",
 				},
