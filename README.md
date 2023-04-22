@@ -30,6 +30,7 @@ Give domain names as arguments.
 $ cert github.com google.co.jp
 DomainName: github.com
 IP:         192.30.255.113
+Port:       443
 Issuer:     DigiCert SHA2 Extended Validation Server CA
 NotBefore:  2016-03-10 09:00:00 +0900 JST
 NotAfter:   2018-05-17 21:00:00 +0900 JST
@@ -39,6 +40,7 @@ Error:
 
 DomainName: google.co.jp
 IP:         216.58.196.227
+Port:       443
 Issuer:     Google Internet Authority G3
 NotBefore:  2017-10-17 19:59:51 +0900 JST
 NotAfter:   2018-01-09 19:00:00 +0900 JST
@@ -55,6 +57,7 @@ So you can get server certificate information of not only web server but also *m
 $ cert github.com google.co.jp:443 imap.gmail.com:993
 DomainName: github.com
 IP:         192.30.255.113
+Port:       443
 Issuer:     DigiCert SHA2 Extended Validation Server CA
 NotBefore:  2016-03-10 09:00:00 +0900 JST
 NotAfter:   2018-05-17 21:00:00 +0900 JST
@@ -64,6 +67,7 @@ Error:
 
 DomainName: google.co.jp
 IP:         172.217.27.163
+Port:       443
 Issuer:     Google Internet Authority G3
 NotBefore:  2017-10-17 19:59:51 +0900 JST
 NotAfter:   2018-01-09 19:00:00 +0900 JST
@@ -73,6 +77,7 @@ Error:
 
 DomainName: imap.gmail.com
 IP:         64.233.188.108
+Port:       993
 Issuer:     Google Internet Authority G2
 NotBefore:  2017-10-17 19:10:29 +0900 JST
 NotAfter:   2017-12-29 09:00:00 +0900 JST
@@ -124,6 +129,7 @@ $ cert -f json github.com | jq .
   {
     "DomainName": "github.com",
     "IP": "192.30.255.112",
+    "Port": "443",
     "Issuer": "DigiCert SHA2 Extended Validation Server CA",
     "CommonName": "github.com",
     "SANs": [
@@ -143,14 +149,14 @@ Use `cert -f md`.
 
 ```sh
 $ cert -f md github.com
-DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | --- | ---
-github.com | 192.30.255.113 | DigiCert SHA2 Extended Validation Server CA | 2016-03-10 09:00:00 +0900 JST | 2018-05-17 21:00:00 +0900 JST | github.com | github.com<br/>www.github.com<br/> |
+DomainName | IP | Port | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+github.com | 192.30.255.113 | 443 | DigiCert SHA2 Extended Validation Server CA | 2016-03-10 09:00:00 +0900 JST | 2018-05-17 21:00:00 +0900 JST | github.com | github.com<br/>www.github.com<br/> |
 ```
 
-DomainName | IP | Issuer | NotBefore | NotAfter | CN | SANs | Error
---- | --- | --- | --- | --- | --- | --- | ---
-github.com | 192.30.255.113 | DigiCert SHA2 Extended Validation Server CA | 2016-03-10 09:00:00 +0900 JST | 2018-05-17 21:00:00 +0900 JST | github.com | github.com<br/>www.github.com<br/> |
+DomainName | IP | Port | Issuer | NotBefore | NotAfter | CN | SANs | Error
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+github.com | 192.30.255.113 | 443 | DigiCert SHA2 Extended Validation Server CA | 2016-03-10 09:00:00 +0900 JST | 2018-05-17 21:00:00 +0900 JST | github.com | github.com<br/>www.github.com<br/> |
 
 ### Specify output format by Go template
 
@@ -190,6 +196,7 @@ Note that the issuers are different in the following example.
 $ cert -cipher TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
 DomainName: cloudflaressl.com
 IP:         104.20.47.142
+Port:       443
 Issuer:     COMODO RSA Domain Validation Secure Server CA 2
 NotBefore:  2019-08-23 09:00:00 +0900 JST
 NotAfter:   2020-03-01 08:59:59 +0900 JST
@@ -201,6 +208,7 @@ Error:
 $ cert -cipher TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305 cloudflaressl.com
 DomainName: cloudflaressl.com
 IP:         104.20.48.142
+Port:       443
 Issuer:     COMODO ECC Domain Validation Secure Server CA 2
 NotBefore:  2019-08-23 09:00:00 +0900 JST
 NotAfter:   2020-03-01 08:59:59 +0900 JST
